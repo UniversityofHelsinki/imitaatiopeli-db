@@ -1,7 +1,7 @@
 image: quay.io/tike/alpine-oc-node
 
 variables:
-    npm_config_cache: "$CI_PROJECT_DIR/.npm"
+    npm_config_cache: '$CI_PROJECT_DIR/.npm'
     PROJECT_NAME: 'imitaatiopeli-db'
     PROJECT_VERSION: '1.0.0'
 
@@ -42,9 +42,10 @@ test:
     services:
         - postgres:16-alpine
     variables:
-        POSTGRES_DB: ${PGDATABASE}
-        POSTGRES_USER: ${PGUSER}
-        POSTGRES_PASSWORD: ${PGPASSWORD}
+        variables:
+        POSTGRES_DB: ${DATABASE}
+        POSTGRES_USER: ${POSTGRES_USER}
+        POSTGRES_PASSWORD: ${PASSWORD}
         POSTGRES_HOST_AUTH_METHOD: trust
     tags:
         - ohtu-build-4

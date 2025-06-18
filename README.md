@@ -33,7 +33,7 @@ This will install all the necessary dependencies.
 ## Usage
 
 Create local postgres instance with command :
-docker run --name compassdb -p 5432:5432 -e POSTGRES_PASSWORD=xxxxxx -e POSTGRES_DB=xxxxxx -d postgres:16-alpine
+docker run --name imitationdb -p 5432:5432 -e POSTGRES_PASSWORD=xxxxxx -e POSTGRES_DB=xxxxxx -d postgres:16-alpine
 
 Create .env file to the root of the project with these values:
 
