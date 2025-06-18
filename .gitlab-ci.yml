@@ -8,7 +8,6 @@ variables:
 stages:
     - setup
     - test
-    - build
 
 .dependencies_cache:
     cache:
