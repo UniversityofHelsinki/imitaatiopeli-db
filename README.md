@@ -38,11 +38,11 @@ docker run --name imitationdb -p 5432:5432 -e POSTGRES_PASSWORD=xxxxxx -e POSTGR
 Create .env file to the root of the project with these values:
 
 ```
-PGUSER=postgres
-PGPASSWORD=(your local postgres password)
-PGPORT=5432
-PGHOST=localhost
-PGDATABASE=(your local postgres schema)
+POSTGRES_USER=postgres
+PASSWORD=(your local postgres password)
+PORT=5432
+HOST=localhost
+DATABASE=(your local postgres schema)
 ```
 
 Run npm install
