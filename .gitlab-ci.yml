@@ -42,7 +42,6 @@ test:
     services:
         - postgres:16-alpine
     variables:
-        variables:
         POSTGRES_DB: ${DATABASE}
         POSTGRES_USER: ${POSTGRES_USER}
         POSTGRES_PASSWORD: ${PASSWORD}
