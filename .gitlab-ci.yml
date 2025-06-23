@@ -89,8 +89,8 @@ deploy_dev:
         - oc set env deploy/imitaatiopeli-db-dev DATABASE=$IMITAATIOPELI_DEV_DATABASE
         - oc set env deploy/imitaatiopeli-db-dev SSL=$IMITAATIOPELI_DEV_SSL
         - oc set env deploy/imitaatiopeli-db-dev TZ="Europe/Helsinki"
-        -  # start build process in OpenShift
+        # start build process in OpenShift
         - oc start-build imitaatiopeli-db-dev --from-dir=. --follow
-        -  # patch openshift buildConfig file
+        # patch openshift buildConfig file
         - oc patch bc/imitaatiopeli-db-dev --patch '{"spec":{"successfulBuildsHistoryLimit":1}}'
         - oc patch bc/imitaatiopeli-db-dev --patch '{"spec":{"failedBuildsHistoryLimit":1}}'
