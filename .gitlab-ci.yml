@@ -75,3 +75,22 @@ deploy_dev:
         # before any action, I connect to the OpenShift server with the appropriate credentials
         - oc login https://$OPENSHIFT_ADDR_TEST:$OPENSHIFT_PORT --token=$OPENSHIFT_TOKEN_TEST
         - oc project imitaatiopeli
+        # add secrets here
+        - oc delete secret generic imitaatiopeli-db-dev-password --ignore-not-found
+        - oc create secret generic imitaatiopeli-db-dev-password --from-literal=PASSWORD=$IMITAATIOPELI_DEV_PASSWORD
+        # list environment variables here
+        # postgres environment variables
+        - oc set env --from=secret/imitaatiopeli-db-dev-password deploy/imitaatiopeli-db-dev
+        - oc set env deploy/imitaatiopeli-db-dev OPENSHIFT_NODEJS_IP=$OPENSHIFT_NODEJS_IP
+        - oc set env deploy/imitaatiopeli-db-dev OPENSHIFT_NODEJS_PORT=$OPENSHIFT_NODEJS_PORT
+        - oc set env deploy/imitaatiopeli-db-dev POSTGRES_USER=$IMITAATIOPELI_DEV_USER_NAME
+        - oc set env deploy/imitaatiopeli-db-dev PORT=$IMITAATIOPELI_DEV_PORT
+        - oc set env deploy/imitaatiopeli-db-dev HOST=$IMITAATIOPELI_DEV_HOST
+        - oc set env deploy/imitaatiopeli-db-dev DATABASE=$IMITAATIOPELI_DEV_DATABASE
+        - oc set env deploy/imitaatiopeli-db-dev SSL=$IMITAATIOPELI_DEV_SSL
+        - oc set env deploy/imitaatiopeli-db-dev TZ="Europe/Helsinki"
+        -  # start build process in OpenShift
+        - oc start-build imitaatiopeli-db-dev --from-dir=. --follow
+        -  # patch openshift buildConfig file
+        - oc patch bc/imitaatiopeli-db-dev --patch '{"spec":{"successfulBuildsHistoryLimit":1}}'
+        - oc patch bc/imitaatiopeli-db-dev --patch '{"spec":{"failedBuildsHistoryLimit":1}}'
