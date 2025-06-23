@@ -8,6 +8,7 @@ variables:
 stages:
     - setup
     - test
+    - deploy
 
 .dependencies_cache:
     cache:
@@ -56,3 +57,21 @@ test:
             - coverage
         expire_in: 1 hour
     extends: .dependencies_cache
+
+deploy_dev:
+    stage: deploy
+    tags:
+        - ohtu-build-4
+    environment:
+        name: development
+    only:
+        - main
+    except:
+        # Skip deploy when scheduled npm audit and outdated scans are executed.
+        - schedules
+    script:
+        # set home path for openshift 1001 user
+        - export HOME=/home/1001
+        # before any action, I connect to the OpenShift server with the appropriate credentials
+        - oc login https://$OPENSHIFT_ADDR_TEST:$OPENSHIFT_PORT --token=$OPENSHIFT_TOKEN_TEST
+        - oc project imitaatiopeli
