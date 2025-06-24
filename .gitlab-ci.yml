@@ -75,6 +75,14 @@ deploy_dev:
         # before any action, I connect to the OpenShift server with the appropriate credentials
         - oc login https://$OPENSHIFT_ADDR_TEST:$OPENSHIFT_PORT --token=$OPENSHIFT_TOKEN_TEST
         - oc project imitaatiopeli
+        # create application if it does not exist
+        - |
+            if oc get deploy/imitaatiopeli-db-dev; then 
+              echo "The application already exists."
+            else 
+              oc new-app . --name=imitaatiopeli-db-dev --strategy=docker
+              echo "The application has been created."
+            fi
         # add secrets here
         - oc delete secret generic imitaatiopeli-db-dev-password --ignore-not-found
         - oc create secret generic imitaatiopeli-db-dev-password --from-literal=PASSWORD=$IMITAATIOPELI_DEV_PASSWORD
