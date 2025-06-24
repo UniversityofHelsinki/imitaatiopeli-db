@@ -8,6 +8,9 @@ variables:
 stages:
     - setup
     - test
+    - dependency-track-generate
+    - dependency-track-submit
+    - deploy
 
 .dependencies_cache:
     cache:
@@ -56,3 +59,77 @@ test:
             - coverage
         expire_in: 1 hour
     extends: .dependencies_cache
+
+generate-sbom:
+    stage: dependency-track-generate
+    image: node:22-alpine
+    only:
+        - schedules
+    tags:
+        - ohtu-build-4
+    script:
+        - npm ci
+        - npx @cyclonedx/cyclonedx-npm --output-file sbom.xml
+    artifacts:
+        expire_in: 1h
+        paths:
+            - sbom.xml
+
+submit-sbom:
+    image: alpine:latest
+    stage: dependency-track-submit
+    only:
+        - schedules
+    tags:
+        - ohtu-build-4
+    dependencies:
+        - generate-sbom
+    before_script:
+        - apk add --no-cache curl
+    script:
+        - "curl -X POST ${DTRACK_API_URL} -H 'Content-Type: multipart/form-data' -H 'X-Api-Key: '${DTRACK_API_KEY} -F 'projectName='${PROJECT_NAME} -F 'autoCreate=true' -F 'projectVersion='${PROJECT_VERSION} -F 'bom=@sbom.xml'"
+
+deploy_dev:
+    stage: deploy
+    tags:
+        - ohtu-build-4
+    environment:
+        name: development
+    only:
+        - main
+    except:
+        # Skip deploy when scheduled npm audit and outdated scans are executed.
+        - schedules
+    script:
+        # set home path for openshift 1001 user
+        - export HOME=/home/1001
+        # before any action, I connect to the OpenShift server with the appropriate credentials
+        - oc login https://$OPENSHIFT_ADDR_TEST:$OPENSHIFT_PORT --token=$OPENSHIFT_TOKEN_TEST
+        - oc project imitaatiopeli
+        # create application if it does not exist
+        - |
+            if oc get deploy/imitaatiopeli-db-dev; then 
+              echo "The application already exists."
+            else 
+              oc new-app . --name=imitaatiopeli-db-dev --strategy=docker
+              echo "The application has been created."
+            fi
+        # add secrets here
+        - oc delete secret generic imitaatiopeli-db-dev-password --ignore-not-found
+        - oc create secret generic imitaatiopeli-db-dev-password --from-literal=PASSWORD=$IMITAATIOPELI_DEV_PASSWORD
+        # list environment variables here
+        # postgres environment variables
+        - oc set env --from=secret/imitaatiopeli-db-dev-password deploy/imitaatiopeli-db-dev
+        - oc set env deploy/imitaatiopeli-db-dev OPENSHIFT_NODEJS_IP=$OPENSHIFT_NODEJS_IP
+        - oc set env deploy/imitaatiopeli-db-dev OPENSHIFT_NODEJS_PORT=$OPENSHIFT_NODEJS_PORT
+        - oc set env deploy/imitaatiopeli-db-dev POSTGRES_USER=$IMITAATIOPELI_DEV_USER_NAME
+        - oc set env deploy/imitaatiopeli-db-dev PORT=$IMITAATIOPELI_DEV_PORT
+        - oc set env deploy/imitaatiopeli-db-dev HOST=$IMITAATIOPELI_DEV_HOST
+        - oc set env deploy/imitaatiopeli-db-dev DATABASE=$IMITAATIOPELI_DEV_DATABASE
+        - oc set env deploy/imitaatiopeli-db-dev SSL=$IMITAATIOPELI_DEV_SSL
+        - oc set env deploy/imitaatiopeli-db-dev TZ="Europe/Helsinki"
+        # start build process in OpenShift
+        - oc start-build imitaatiopeli-db-dev --from-dir=. --follow
+        # patch openshift buildConfig file
+        - oc patch bc/imitaatiopeli-db-dev --patch '{"spec":{"successfulBuildsHistoryLimit":1}}'
+        - oc patch bc/imitaatiopeli-db-dev --patch '{"spec":{"failedBuildsHistoryLimit":1}}'

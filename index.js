@@ -1,9 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const database = require('./services/database.js');
-const { fileURLToPath } = require('url');
 const path = require('node:path');
-const { dirname } = require('path');
 const fs = require('fs');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
@@ -14,7 +12,8 @@ const { logger, errorLogger } = require('./logger.js');
 const app = express();
 const router = express.Router();
 
-const ipaddress = process.env.AZURE_NODEJS_IP || 'localhost';
+const ipaddress = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
+const port = process.env.OPENSHIFT_NODEJS_PORT || 8080;
 
 app.use(compression());
 app.use(helmet());
@@ -29,9 +28,6 @@ database.query('SELECT NOW()', (err, res) => {
 const createTables = fs.readFileSync(path.resolve(__dirname, './sql/createTables.sql'), 'utf8');
 
 database.query(createTables);
-
-// Specify the port to listen on
-const port = 8000;
 
 app.use('/api', router);
 routes(router);
