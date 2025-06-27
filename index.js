@@ -13,7 +13,7 @@ const app = express();
 const router = express.Router();
 
 const ipaddress = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
-const port = process.env.OPENSHIFT_NODEJS_PORT || 8080;
+const port = process.env.OPENSHIFT_NODEJS_PORT || 7000;
 
 app.use(compression());
 app.use(helmet());
