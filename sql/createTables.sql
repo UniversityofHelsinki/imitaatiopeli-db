@@ -19,7 +19,10 @@ CREATE TABLE IF NOT EXISTS PLAYER (
     roles VARCHAR(255),
     game_id integer,
     created_at TIMESTAMP,
-    PRIMARY KEY(player_id)
+    PRIMARY KEY(player_id),
+    nickname VARCHAR(100) NOT NULL,
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    session_token VARCHAR(255) UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS GAME (
