@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS GAME (
     config_id INTEGER REFERENCES GAME_CONFIGURATION(config_id),
     start_time TIMESTAMPTZ,
     end_time TIMESTAMPTZ,
-    game_code integer,
+    game_code VARCHAR(255) UNIQUE NOT NULL,
     duration_minutes integer,
     judge_id INTEGER REFERENCES PLAYER(player_id),
     human_id INTEGER REFERENCES PLAYER(player_id),
