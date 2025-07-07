@@ -154,3 +154,48 @@ deploy_dev:
         # patch openshift buildConfig file
         - oc patch bc/imitaatiopeli-db-dev --patch '{"spec":{"successfulBuildsHistoryLimit":1}}'
         - oc patch bc/imitaatiopeli-db-dev --patch '{"spec":{"failedBuildsHistoryLimit":1}}'
+
+deploy_test:
+    stage: deploy
+    tags:
+        - ohtu-build-4
+    environment:
+        name: test
+    only:
+        - test
+    except:
+        # Skip deploy when scheduled npm audit and outdated scans are executed.
+        - schedules
+    script:
+        # set home path for openshift 1001 user
+        - export HOME=/home/1001
+        # before any action, I connect to the OpenShift server with the appropriate credentials
+        - oc login https://$OPENSHIFT_ADDR_TEST:$OPENSHIFT_PORT --token=$OPENSHIFT_TOKEN_TEST
+        - oc project imitaatiopeli
+        # create application if it does not exist
+        - |
+            if oc get deploy/imitaatiopeli-db-test; then 
+              echo "The application already exists."
+            else 
+              oc new-app . --name=imitaatiopeli-db-test --strategy=docker
+              echo "The application has been created."
+            fi
+        # add secrets here
+        - oc delete secret generic imitaatiopeli-db-test-password --ignore-not-found
+        - oc create secret generic imitaatiopeli-db-test-password --from-literal=PASSWORD=$IMITAATIOPELI_TEST_PASSWORD
+        # list environment variables here
+        # postgres environment variables
+        - oc set env --from=secret/imitaatiopeli-db-test-password deploy/imitaatiopeli-test-dev
+        - oc set env deploy/imitaatiopeli-db-test OPENSHIFT_NODEJS_IP=$OPENSHIFT_NODEJS_IP
+        - oc set env deploy/imitaatiopeli-db-test OPENSHIFT_NODEJS_PORT=$OPENSHIFT_NODEJS_PORT
+        - oc set env deploy/imitaatiopeli-db-test POSTGRES_USER=$IMITAATIOPELI_TEST_USER_NAME
+        - oc set env deploy/imitaatiopeli-db-test PORT=$IMITAATIOPELI_TEST_PORT
+        - oc set env deploy/imitaatiopeli-db-test HOST=$IMITAATIOPELI_TEST_HOST
+        - oc set env deploy/imitaatiopeli-db-test DATABASE=$IMITAATIOPELI_TEST_DATABASE
+        - oc set env deploy/imitaatiopeli-db-test SSL=$IMITAATIOPELI_TEST_SSL
+        - oc set env deploy/imitaatiopeli-db-test TZ="Europe/Helsinki"
+        # start build process in OpenShift
+        - oc start-build imitaatiopeli-db-test --from-dir=. --follow
+        # patch openshift buildConfig file
+        - oc patch bc/imitaatiopeli-db-test --patch '{"spec":{"successfulBuildsHistoryLimit":1}}'
+        - oc patch bc/imitaatiopeli-db-test --patch '{"spec":{"failedBuildsHistoryLimit":1}}'
