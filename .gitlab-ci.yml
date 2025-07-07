@@ -185,7 +185,7 @@ deploy_test:
         - oc create secret generic imitaatiopeli-db-test-password --from-literal=PASSWORD=$IMITAATIOPELI_TEST_PASSWORD
         # list environment variables here
         # postgres environment variables
-        - oc set env --from=secret/imitaatiopeli-db-test-password deploy/imitaatiopeli-test-dev
+        - oc set env --from=secret/imitaatiopeli-db-test-password deploy/imitaatiopeli-db-test
         - oc set env deploy/imitaatiopeli-db-test OPENSHIFT_NODEJS_IP=$OPENSHIFT_NODEJS_IP
         - oc set env deploy/imitaatiopeli-db-test OPENSHIFT_NODEJS_PORT=$OPENSHIFT_NODEJS_PORT
         - oc set env deploy/imitaatiopeli-db-test POSTGRES_USER=$IMITAATIOPELI_TEST_USER_NAME
