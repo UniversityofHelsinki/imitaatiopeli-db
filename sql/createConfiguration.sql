@@ -1,0 +1,10 @@
+INSERT INTO GAME_CONFIGURATION
+  (
+    AI_PROMPT, 
+    GAME_NAME
+  ) 
+VALUES 
+  (
+    $1, 
+    $2
+  ) RETURNING *;

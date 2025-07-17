@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS GAME_CONFIGURATION (
     config_id SERIAL,
-    ai_promt integer,
+    ai_prompt VARCHAR,
     model_temperature integer,
     game_name VARCHAR(255),
     theme_description VARCHAR(255),
