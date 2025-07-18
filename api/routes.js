@@ -3,6 +3,7 @@ const { execute } = require('../services/database');
 const game = require('../services/game');
 const { savePlayer } = require('../services/players');
 const { getPlayerById } = require('./dbApi');
+const crypto = require('node:crypto');
 
 module.exports = (router) => {
     router.get('/hello', (req, res) => {
@@ -26,7 +27,10 @@ module.exports = (router) => {
             body.configuration.ai_prompt,
         ]);
 
-        const game = await execute('createGame.sql', [configuration[0].config_id]);
+        const game = await execute('createGame.sql', [
+            configuration[0].config_id,
+            crypto.randomUUID(),
+        ]);
 
         if (game?.length === 1) {
             return res.json({
