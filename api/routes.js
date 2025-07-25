@@ -57,4 +57,22 @@ module.exports = (router) => {
 
         return res.status(500).end();
     });
+
+    router.put('/game/:id/start', async (req, res) => {
+        const { id } = req.params;
+        await execute('startGame.sql', [id]);
+        return res.status(200).end();
+    });
+
+    router.put('/game/:id/end', async (req, res) => {
+        const { id } = req.params;
+        await execute('endGame.sql', [id]);
+        return res.status(200).end();
+    });
+
+    router.get('/games', async (req, res) => {
+        const { params } = req;
+
+        res.json(await game.all(params.user));
+    });
 };

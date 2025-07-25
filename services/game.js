@@ -17,6 +17,23 @@ const get = async (id) => {
     };
 };
 
+const all = async (user) => {
+    const games = await execute('allGames.sql');
+    const configurations = await execute('allConfigurations.sql');
+
+    const gamesByConfiguration = {};
+
+    games.forEach((game) => {
+        gamesByConfiguration[game.config_id] = game;
+    });
+
+    return configurations.map((configuration) => ({
+        ...gamesByConfiguration[configuration.config_id],
+        configuration,
+    }));
+};
+
 module.exports = {
     get,
+    all,
 };
