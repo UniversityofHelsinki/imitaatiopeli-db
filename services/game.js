@@ -17,6 +17,31 @@ const get = async (id) => {
     };
 };
 
+const getByCode = async (code) => {
+    const gameQueryResults = await execute('getGameByCode.sql', [code]);
+
+    const configurationQueryResults = await execute('getConfiguration.sql', [
+        gameQueryResults[0].config_id,
+    ]);
+
+    return {
+        ...gameQueryResults[0],
+        configuration: configurationQueryResults,
+    };
+};
+
+const join = async (player, game) => {
+    const playerQueryResults = await execute('createPlayer.sql', [
+        game.game_id,
+        player.session_token,
+        player.nickname,
+    ]);
+
+    return {
+        ...playerQueryResults[0],
+    };
+};
+
 const all = async (user) => {
     const games = await execute('allGames.sql');
     const configurations = await execute('allConfigurations.sql');
@@ -35,5 +60,7 @@ const all = async (user) => {
 
 module.exports = {
     get,
+    getByCode,
+    join,
     all,
 };

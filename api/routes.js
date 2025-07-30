@@ -75,4 +75,25 @@ module.exports = (router) => {
 
         res.json(await game.all(params.user));
     });
+
+    router.get('/game/code/:code', async (req, res) => {
+        const { code } = req.params;
+        return res.json(await game.getByCode(code));
+    });
+
+    router.post('/game/join', async (req, res) => {
+        const { body } = req;
+        const g = await game.getByCode(body.code);
+        if (g) {
+            const player = await game.join(
+                {
+                    nickname: body.nickname,
+                    game_id: g.game_id,
+                    session_token: crypto.randomUUID(),
+                },
+                g,
+            );
+            res.json(player);
+        }
+    });
 };
