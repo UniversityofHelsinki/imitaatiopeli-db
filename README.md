@@ -43,6 +43,7 @@ PASSWORD=(your local postgres password)
 PORT=5432
 HOST=localhost
 DATABASE=(your local postgres schema)
+SSL=true (leave this out if using local Docker database)
 ```
 
 Run npm install
