@@ -1,10 +1,12 @@
 INSERT INTO GAME_CONFIGURATION
   (
     GAME_NAME,
+    THEME_DESCRIPTION,
     AI_PROMPT 
   ) 
 VALUES 
   (
-    $1, 
-    $2
+    $1,
+    $2,
+    $3
   ) RETURNING *;
