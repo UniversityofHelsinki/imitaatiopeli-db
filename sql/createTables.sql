@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS GAME_CONFIGURATION (
     background_info BOOLEAN,
     language_used VARCHAR(255),
     instructions_for_players VARCHAR(255),
+    is_research_game BOOLEAN,
     PRIMARY KEY(config_id)
 );
 
@@ -22,7 +23,8 @@ CREATE TABLE IF NOT EXISTS PLAYER (
     PRIMARY KEY(player_id),
     nickname VARCHAR(100) NOT NULL,
     joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    session_token VARCHAR(255) UNIQUE
+    session_token VARCHAR(255) UNIQUE,
+    is_research_allowed BOOLEAN,
 );
 
 CREATE TABLE IF NOT EXISTS GAME (
