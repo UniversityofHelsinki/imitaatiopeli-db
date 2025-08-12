@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS PLAYER (
     nickname VARCHAR(100) NOT NULL,
     joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     session_token VARCHAR(255) UNIQUE,
-    is_research_allowed BOOLEAN,
+    is_research_allowed BOOLEAN
 );
 
 CREATE TABLE IF NOT EXISTS GAME (
