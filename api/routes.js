@@ -19,6 +19,8 @@ module.exports = (router) => {
         res.json(await game.get(id));
     });
 
+    //router.post('/game/remove/:id', removePlayer);
+
     router.post('/game/create', async (req, res) => {
         const { body } = req;
 
