@@ -24,6 +24,7 @@ module.exports = (router) => {
 
         const configuration = await execute('createConfiguration.sql', [
             body.configuration.game_name,
+            body.configuration.theme_description,
             body.configuration.ai_prompt,
         ]);
 

@@ -12,6 +12,11 @@ CREATE TABLE IF NOT EXISTS GAME_CONFIGURATION (
     language_used VARCHAR(255),
     instructions_for_players VARCHAR(255),
     is_research_game BOOLEAN,
+    research_description VARCHAR(255),
+    is_habitation_mandatory BOOLEAN,
+    is_age_mandatory BOOLEAN,
+    is_background_info_mandatory BOOLEAN,
+    is_gender_mandatory BOOLEAN,
     PRIMARY KEY(config_id)
 );
 
