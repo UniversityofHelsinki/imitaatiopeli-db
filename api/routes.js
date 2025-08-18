@@ -2,7 +2,7 @@ const { logger } = require('../logger');
 const { execute } = require('../services/database');
 const game = require('../services/game');
 const { savePlayer } = require('../services/players');
-const { getPlayerById } = require('./dbApi');
+const { getPlayerById, deleteGame } = require('./dbApi');
 const crypto = require('node:crypto');
 
 module.exports = (router) => {
@@ -18,6 +18,8 @@ module.exports = (router) => {
         const { id } = req.params;
         res.json(await game.get(id));
     });
+
+    router.delete('/game/deleteGame', deleteGame);
 
     router.post('/game/create', async (req, res) => {
         const { body } = req;
