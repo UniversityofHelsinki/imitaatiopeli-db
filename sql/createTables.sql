@@ -13,10 +13,6 @@ CREATE TABLE IF NOT EXISTS GAME_CONFIGURATION (
     instructions_for_players VARCHAR(255),
     is_research_game BOOLEAN,
     research_description VARCHAR(255),
-    is_location_mandatory BOOLEAN,
-    is_age_mandatory BOOLEAN,
-    is_background_info_mandatory BOOLEAN,
-    is_gender_mandatory BOOLEAN,
     PRIMARY KEY(config_id)
 );
 
@@ -61,6 +57,10 @@ CREATE TABLE IF NOT EXISTS BACKGROUND_INFO (
     location VARCHAR(255),
     relevant_background VARCHAR(255),
     theme VARCHAR(255),
+    is_location_mandatory BOOLEAN,
+    is_age_mandatory BOOLEAN,
+    is_background_info_mandatory BOOLEAN,
+    is_gender_mandatory BOOLEAN,
     created TIMESTAMP,
     PRIMARY KEY(id)
 );
@@ -69,6 +69,7 @@ CREATE TABLE IF NOT EXISTS CUSTOM_BACKGROUND_INFO (
     background_info_id SERIAL,
     custom_fields VARCHAR(255),
     info_id INTEGER REFERENCES BACKGROUND_INFO(id),
+    config_id INTEGER REFERENCES GAME_CONFIGURATION(config_id),
     PRIMARY KEY(background_info_id)
 );
 
