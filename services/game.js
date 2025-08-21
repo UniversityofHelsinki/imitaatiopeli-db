@@ -29,6 +29,10 @@ const get = async (id) => {
 const getByCode = async (code) => {
     const gameQueryResults = await execute('getGameByCode.sql', [code]);
 
+    if (!gameQueryResults[0]) {
+        return null; // or `throw new Error('Game not found')`
+    }
+
     const configurationQueryResults = await execute('getConfiguration.sql', [
         gameQueryResults[0].config_id,
     ]);
