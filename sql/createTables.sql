@@ -110,3 +110,15 @@ CREATE TABLE IF NOT EXISTS GAME_SUMMARY (
     final_guess_correct BOOLEAN,
     PRIMARY KEY(summary_id)
 );
+
+CREATE TABLE IF NOT EXISTS game_players (
+    game_id INTEGER NOT NULL,
+    player_id INTEGER NOT NULL,
+    joined_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (game_id, player_id),
+    FOREIGN KEY (game_id) REFERENCES GAME(game_id) ON DELETE CASCADE,
+    FOREIGN KEY (player_id) REFERENCES PLAYER(player_id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_game_players_game_id ON game_players(game_id);
+CREATE INDEX IF NOT EXISTS idx_game_players_player_id ON game_players(player_id);
