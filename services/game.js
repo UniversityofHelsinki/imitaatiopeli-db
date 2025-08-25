@@ -71,9 +71,20 @@ const all = async (user) => {
     }));
 };
 
+const allLanguageModels = async (user) => {
+    const languageModels = await execute('allLanguageModels.sql');
+
+    if (!languageModels[0]) {
+        return null; // or `throw new Error('Game not found')`
+    }
+
+    return languageModels;
+};
+
 module.exports = {
     get,
     getByCode,
     join,
     all,
+    allLanguageModels,
 };
