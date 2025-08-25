@@ -21,18 +21,56 @@ app.use(helmet());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-database.query('SELECT NOW()', (err, res) => {
-    console.log(err ? 'errors: ' + err : 'Postgres client connected ', res.rows[0]);
-});
+const initializeDatabase = async () => {
+    try {
+        // Test connection
+        console.log('Testing database connection...');
+        const res = await database.query('SELECT NOW()');
+        console.log('✓ Postgres client connected', res.rows[0]);
 
-const createTables = fs.readFileSync(path.resolve(__dirname, './sql/createTables.sql'), 'utf8');
+        // Create tables
+        console.log('Creating/verifying tables...');
+        const createTables = fs.readFileSync(
+            path.resolve(__dirname, './sql/createTables.sql'),
+            'utf8',
+        );
+        await database.query(createTables);
+        console.log('✓ Tables created/verified');
 
-database.query(createTables);
+        // Initialize default data
+        console.log('Initializing default data...');
+        await database.initializeDefaultData();
+        console.log('✓ Database initialization completed');
+    } catch (err) {
+        console.error('Database initialization error:', err);
+        // Don't exit the process, but log the error
+        logger.error('Failed to initialize database:', err);
+    }
+};
 
-app.use('/api', router);
-routes(router);
+// Initialize database before setting up routes
+const startServer = async () => {
+    try {
+        // Initialize database first
+        await initializeDatabase();
 
-// Start the server
-app.listen(port, ipaddress, () => {
-    logger.info(`Node.js HTTP server is running on port ${port} and ip address ${ipaddress}`);
-});
+        // Set up routes after database is ready
+        app.use('/api', router);
+        routes(router);
+
+        // Start the server
+        app.listen(port, ipaddress, () => {
+            logger.info(
+                `Node.js HTTP server is running on port ${port} and ip address ${ipaddress}`,
+            );
+            console.log('🚀 Server started successfully!');
+        });
+    } catch (error) {
+        console.error('Failed to start server:', error);
+        logger.error('Server startup failed:', error);
+        process.exit(1);
+    }
+};
+
+// Start the application
+startServer();

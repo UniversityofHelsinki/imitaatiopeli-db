@@ -44,6 +44,8 @@ PORT=5432
 HOST=localhost
 DATABASE=(your local postgres schema)
 SSL=true (leave this out if using local Docker database)
+MODEL_GPT4_NANO_NAME=(found in keepass)
+MODEL_GPT4_NANO_URL=(found in keepass)
 ```
 
 Run npm install
