@@ -10,15 +10,28 @@ const get = async (id) => {
     const configurationQueryResults = await execute('getConfiguration.sql', [
         gameQueryResults[0].config_id,
     ]);
+    const backgroundInfoQueryResults = await execute('getBackgroundInfo.sql', [
+        gameQueryResults[0].config_id,
+    ]);
+    const customBackgroundInfoQueryResults = await execute('getCustomBackgroundInfo.sql', [
+        gameQueryResults[0].config_id,
+        backgroundInfoQueryResults[0].id,
+    ]);
 
     return {
         ...gameQueryResults[0],
         configuration: configurationQueryResults[0],
+        background_info: backgroundInfoQueryResults[0],
+        custom_background_info: customBackgroundInfoQueryResults[0],
     };
 };
 
 const getByCode = async (code) => {
     const gameQueryResults = await execute('getGameByCode.sql', [code]);
+
+    if (!gameQueryResults[0]) {
+        return null; // or `throw new Error('Game not found')`
+    }
 
     const configurationQueryResults = await execute('getConfiguration.sql', [
         gameQueryResults[0].config_id,

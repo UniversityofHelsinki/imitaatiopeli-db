@@ -2,7 +2,7 @@ const { logger } = require('../logger');
 const { execute } = require('../services/database');
 const game = require('../services/game');
 const { savePlayer } = require('../services/players');
-const { getPlayerById } = require('./dbApi');
+const { getPlayerById, deleteGame } = require('./dbApi');
 const crypto = require('node:crypto');
 
 module.exports = (router) => {
@@ -19,11 +19,14 @@ module.exports = (router) => {
         res.json(await game.get(id));
     });
 
+    router.delete('/game/deleteGame', deleteGame);
+
     router.post('/game/create', async (req, res) => {
         const { body } = req;
 
         const configuration = await execute('createConfiguration.sql', [
             body.configuration.game_name,
+            body.configuration.theme_description,
             body.configuration.ai_prompt,
         ]);
 
