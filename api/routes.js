@@ -23,11 +23,14 @@ module.exports = (router) => {
 
     router.post('/game/create', async (req, res) => {
         const { body } = req;
-
         const configuration = await execute('createConfiguration.sql', [
+            body.configuration.ai_prompt,
             body.configuration.game_name,
             body.configuration.theme_description,
-            body.configuration.ai_prompt,
+            body.configuration.language_used,
+            body.configuration.instructions_for_players,
+            body.configuration.is_research_game,
+            body.configuration.research_description,
         ]);
 
         const game = await execute('createGame.sql', [
@@ -51,6 +54,11 @@ module.exports = (router) => {
         const queryResults = await execute('editConfiguration.sql', [
             body.configuration.ai_prompt,
             body.configuration.game_name,
+            body.configuration.theme_description,
+            body.configuration.language_used,
+            body.configuration.instructions_for_players,
+            body.configuration.is_research_game,
+            body.configuration.research_description,
             body.configuration.config_id,
         ]);
 
