@@ -1,12 +1,20 @@
 INSERT INTO GAME_CONFIGURATION
   (
+    AI_PROMPT,
     GAME_NAME,
     THEME_DESCRIPTION,
-    AI_PROMPT
-  ) 
+    LANGUAGE_USED,
+    INSTRUCTIONS_FOR_PLAYERS,
+    IS_RESEARCH_GAME,
+    RESEARCH_DESCRIPTION
+  )
 VALUES 
   (
     $1,
     $2,
-    $3
+    $3,
+    $4,
+    $5,
+    $6,
+    $7
   ) RETURNING *;
