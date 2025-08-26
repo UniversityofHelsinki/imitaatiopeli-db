@@ -81,10 +81,19 @@ const allLanguageModels = async (user) => {
     return languageModels;
 };
 
+const getLanguageModelById = async (id) => {
+    const languageModel = await execute('getLanguageModelById.sql', [id]);
+    if (!languageModel[0]) {
+        return null;
+    }
+    return languageModel[0];
+};
+
 module.exports = {
     get,
     getByCode,
     join,
     all,
     allLanguageModels,
+    getLanguageModelById,
 };
