@@ -87,6 +87,23 @@ module.exports = (router) => {
         res.json(await game.all(params.user));
     });
 
+    router.get('/languageModels', async (req, res) => {
+        const result = await game.allLanguageModels();
+        if (!result) {
+            return res.status(404).json({ error: 'No language models found' });
+        }
+        res.json(result);
+    });
+
+    router.get('/languageModelUrl/:id', async (req, res) => {
+        const { id } = req.params;
+        const result = await game.getLanguageModelById(id);
+        if (!result) {
+            return res.status(404).json({ error: 'No language models found' });
+        }
+        res.json(result);
+    });
+
     router.get('/game/code/:code', async (req, res) => {
         const { code } = req.params;
         return res.json(await game.getByCode(code));
