@@ -18,12 +18,11 @@ CREATE TABLE IF NOT EXISTS GAME_CONFIGURATION (
                                                   answer_randomization BOOLEAN,
                                                   background_info BOOLEAN,
                                                   language_used VARCHAR(255),
-                                                  instructions_for_players VARCHAR(255),
+                                                  instructions_for_players VARCHAR(4000),
                                                   is_research_game BOOLEAN,
-                                                  research_description VARCHAR(255),
+                                                  research_description VARCHAR(4000),
                                                   PRIMARY KEY(config_id)
 );
-
 
 CREATE TABLE IF NOT EXISTS PLAYER (
                                       player_id SERIAL,
@@ -58,30 +57,29 @@ CREATE TABLE IF NOT EXISTS RESEARCHER_TEACHER (
                                                   PRIMARY KEY(id)
 );
 
-CREATE TABLE IF NOT EXISTS BACKGROUND_INFO (
-                                               id SERIAL,
-                                               player_id integer,
-                                               age integer,
-                                               gender VARCHAR(255),
-                                               location VARCHAR(255),
-                                               relevant_background VARCHAR(255),
-                                               theme VARCHAR(255),
-                                               is_location_mandatory BOOLEAN,
-                                               is_age_mandatory BOOLEAN,
-                                               is_background_info_mandatory BOOLEAN,
-                                               is_gender_mandatory BOOLEAN,
-                                               created TIMESTAMP,
-                                               config_id INTEGER REFERENCES GAME_CONFIGURATION(config_id),
-                                               PRIMARY KEY(id)
+/*CREATE TABLE IF NOT EXISTS BACKGROUND_INFO (
+    id SERIAL,
+    player_id integer,
+    age integer,
+    gender VARCHAR(255),
+    location VARCHAR(255),
+    relevant_background VARCHAR(255),
+    theme VARCHAR(255),
+    is_location_mandatory BOOLEAN,
+    is_age_mandatory BOOLEAN,
+    is_background_info_mandatory BOOLEAN,
+    is_gender_mandatory BOOLEAN,
+    created TIMESTAMP,
+    PRIMARY KEY(id)
 );
 
 CREATE TABLE IF NOT EXISTS CUSTOM_BACKGROUND_INFO (
-                                                      background_info_id SERIAL,
-                                                      custom_fields VARCHAR(255),
-                                                      info_id INTEGER REFERENCES BACKGROUND_INFO(id),
-                                                      config_id INTEGER REFERENCES GAME_CONFIGURATION(config_id),
-                                                      PRIMARY KEY(background_info_id)
-);
+    background_info_id SERIAL,
+    custom_fields VARCHAR(255),
+    info_id INTEGER REFERENCES BACKGROUND_INFO(id),
+    config_id INTEGER REFERENCES GAME_CONFIGURATION(config_id),
+    PRIMARY KEY(background_info_id)
+);*/
 
 CREATE TABLE IF NOT EXISTS QUESTION (
                                         question_id SERIAL,
