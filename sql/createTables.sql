@@ -24,7 +24,6 @@ CREATE TABLE IF NOT EXISTS GAME_CONFIGURATION (
                                                   PRIMARY KEY(config_id)
 );
 
-
 CREATE TABLE IF NOT EXISTS PLAYER (
                                       player_id SERIAL,
                                       roles VARCHAR(255),
