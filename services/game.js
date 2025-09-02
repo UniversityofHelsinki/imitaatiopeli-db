@@ -20,6 +20,10 @@ const get = async (id) => {
 const getByCode = async (code) => {
     const gameQueryResults = await execute('getGameByCode.sql', [code]);
 
+    if (!gameQueryResults[0]) {
+        return null; // or `throw new Error('Game not found')`
+    }
+
     const configurationQueryResults = await execute('getConfiguration.sql', [
         gameQueryResults[0].config_id,
     ]);
@@ -35,6 +39,10 @@ const join = async (player, game) => {
         game.game_id,
         player.session_token,
         player.nickname,
+    ]);
+    await execute('insertPlayerToGame.sql', [
+        game.game_id,
+        playerQueryResults[0].player_id
     ]);
 
     return {
@@ -58,9 +66,29 @@ const all = async (user) => {
     }));
 };
 
+const allLanguageModels = async (user) => {
+    const languageModels = await execute('allLanguageModels.sql');
+
+    if (!languageModels[0]) {
+        return null; // or `throw new Error('Game not found')`
+    }
+
+    return languageModels;
+};
+
+const getLanguageModelById = async (id) => {
+    const languageModel = await execute('getLanguageModelById.sql', [id]);
+    if (!languageModel[0]) {
+        return null;
+    }
+    return languageModel[0];
+};
+
 module.exports = {
     get,
     getByCode,
     join,
     all,
+    allLanguageModels,
+    getLanguageModelById,
 };

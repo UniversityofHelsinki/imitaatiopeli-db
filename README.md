@@ -50,6 +50,8 @@ Run npm install
 
 Start the service with node index.js
 
+Add Language models to language_model table names and urls (found in keepass)
+
 Run tests with command: npm run coverage
 
 ## Deployment

@@ -23,11 +23,15 @@ module.exports = (router) => {
 
     router.post('/game/create', async (req, res) => {
         const { body } = req;
-
         const configuration = await execute('createConfiguration.sql', [
+            body.configuration.ai_prompt,
             body.configuration.game_name,
             body.configuration.theme_description,
-            body.configuration.ai_prompt,
+            body.configuration.language_used,
+            body.configuration.instructions_for_players,
+            body.configuration.is_research_game,
+            body.configuration.research_description,
+            body.configuration.language_model,
         ]);
 
         const game = await execute('createGame.sql', [
@@ -51,6 +55,12 @@ module.exports = (router) => {
         const queryResults = await execute('editConfiguration.sql', [
             body.configuration.ai_prompt,
             body.configuration.game_name,
+            body.configuration.theme_description,
+            body.configuration.language_used,
+            body.configuration.instructions_for_players,
+            body.configuration.is_research_game,
+            body.configuration.research_description,
+            body.configuration.language_model,
             body.configuration.config_id,
         ]);
 
@@ -79,6 +89,23 @@ module.exports = (router) => {
         res.json(await game.all(params.user));
     });
 
+    router.get('/languageModels', async (req, res) => {
+        const result = await game.allLanguageModels();
+        if (!result) {
+            return res.status(404).json({ error: 'No language models found' });
+        }
+        res.json(result);
+    });
+
+    router.get('/languageModelUrl/:id', async (req, res) => {
+        const { id } = req.params;
+        const result = await game.getLanguageModelById(id);
+        if (!result) {
+            return res.status(404).json({ error: 'No language models found' });
+        }
+        res.json(result);
+    });
+
     router.get('/game/code/:code', async (req, res) => {
         const { code } = req.params;
         return res.json(await game.getByCode(code));
@@ -99,4 +126,22 @@ module.exports = (router) => {
             res.json(player);
         }
     });
+
+    router.get('/games/:id/lobby', async (req, res) => {
+        const { id } = req.params;
+        res.json(await game.get(id));
+    });
+
+    router.get('/games/:id/players', async (req, res) => {
+        const { id } = req.params;
+
+        try {
+            const players = await execute('getGamePlayers.sql', [id]);
+            res.json(players);
+        } catch (error) {
+            logger.error('Error fetching players for game:', error);
+            res.status(500).json({ error: 'Failed to fetch players' });
+        }
+    });
+
 };
