@@ -23,11 +23,14 @@ module.exports = (router) => {
 
     router.post('/game/create', async (req, res) => {
         const { body } = req;
-
         const configuration = await execute('createConfiguration.sql', [
+            body.configuration.ai_prompt,
             body.configuration.game_name,
             body.configuration.theme_description,
-            body.configuration.ai_prompt,
+            body.configuration.language_used,
+            body.configuration.instructions_for_players,
+            body.configuration.is_research_game,
+            body.configuration.research_description,
         ]);
 
         const game = await execute('createGame.sql', [
@@ -51,6 +54,11 @@ module.exports = (router) => {
         const queryResults = await execute('editConfiguration.sql', [
             body.configuration.ai_prompt,
             body.configuration.game_name,
+            body.configuration.theme_description,
+            body.configuration.language_used,
+            body.configuration.instructions_for_players,
+            body.configuration.is_research_game,
+            body.configuration.research_description,
             body.configuration.config_id,
         ]);
 
@@ -77,6 +85,23 @@ module.exports = (router) => {
         const { params } = req;
 
         res.json(await game.all(params.user));
+    });
+
+    router.get('/languageModels', async (req, res) => {
+        const result = await game.allLanguageModels();
+        if (!result) {
+            return res.status(404).json({ error: 'No language models found' });
+        }
+        res.json(result);
+    });
+
+    router.get('/languageModelUrl/:id', async (req, res) => {
+        const { id } = req.params;
+        const result = await game.getLanguageModelById(id);
+        if (!result) {
+            return res.status(404).json({ error: 'No language models found' });
+        }
+        res.json(result);
     });
 
     router.get('/game/code/:code', async (req, res) => {
