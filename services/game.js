@@ -40,6 +40,10 @@ const join = async (player, game) => {
         player.session_token,
         player.nickname,
     ]);
+    await execute('insertPlayerToGame.sql', [
+        game.game_id,
+        playerQueryResults[0].player_id
+    ]);
 
     return {
         ...playerQueryResults[0],

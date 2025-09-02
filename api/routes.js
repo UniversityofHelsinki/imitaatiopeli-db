@@ -126,4 +126,22 @@ module.exports = (router) => {
             res.json(player);
         }
     });
+
+    router.get('/games/:id/lobby', async (req, res) => {
+        const { id } = req.params;
+        res.json(await game.get(id));
+    });
+
+    router.get('/games/:id/players', async (req, res) => {
+        const { id } = req.params;
+
+        try {
+            const players = await execute('getGamePlayers.sql', [id]);
+            res.json(players);
+        } catch (error) {
+            logger.error('Error fetching players for game:', error);
+            res.status(500).json({ error: 'Failed to fetch players' });
+        }
+    });
+
 };
