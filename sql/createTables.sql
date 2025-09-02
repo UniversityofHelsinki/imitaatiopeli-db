@@ -18,9 +18,9 @@ CREATE TABLE IF NOT EXISTS GAME_CONFIGURATION (
                                                   answer_randomization BOOLEAN,
                                                   background_info BOOLEAN,
                                                   language_used VARCHAR(255),
-                                                  instructions_for_players VARCHAR(255),
+                                                  instructions_for_players VARCHAR(4000),
                                                   is_research_game BOOLEAN,
-                                                  research_description VARCHAR(255),
+                                                  research_description VARCHAR(4000),
                                                   PRIMARY KEY(config_id)
 );
 
