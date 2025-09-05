@@ -49,10 +49,9 @@ CREATE TABLE IF NOT EXISTS GAME (
                                     PRIMARY KEY(game_id)
 );
 
-CREATE TABLE IF NOT EXISTS RESEARCHER_TEACHER (
+CREATE TABLE IF NOT EXISTS GAME_ORGANIZER (
                                                   id SERIAL,
                                                   user_id VARCHAR(255),
-                                                  name VARCHAR(255),
                                                   created_at TIMESTAMP,
                                                   PRIMARY KEY(id)
 );
