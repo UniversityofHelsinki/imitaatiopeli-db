@@ -1,0 +1,1 @@
+DELETE FROM game_configuration WHERE config_id = $1;

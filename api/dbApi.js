@@ -26,23 +26,14 @@ exports.getPlayerById = async (req, res) => {
 };
 
 exports.deleteGame = async (req, res) => {
-    //
-    // HUOM !  Tämä poistaa vain pelin. Pitää varmaan poistaa player taulusta human, judge ja ai.
-    //         Ja ehkä myös game_configuration taulusta pelin konfiguraatiorivi.
-    try {
-        const player = req.body;
-        console.log('game_id:' + player.game_id);
-        const deleteGameSQL = fs.readFileSync(
-            path.resolve(__dirname, '../sql/deleteGame.sql'),
-            'utf8',
-        );
-        const result = await database.query(deleteGameSQL, [player?.game_id]);
-        console.log('result:' + result);
-        return result;
-    } catch (err) {
-        logger.error(`Error deleting game : ${err} `);
-        throw err;
-    }
+    const game_id = req?.game_id;
+    const transaction = await database.transaction();
+    await transaction.query('deleteGamePlayers.sql', [game_id]);
+    await transaction.query('deletePlayers.sql', [game_id]);
+    await transaction.query('deleteGame.sql', [game_id]);
+    await transaction.query('deleteConfiguration.sql', [game_id]);
+    transaction.commit();
+    transaction.end();
 };
 
 exports.savePlayer = async (player) => {

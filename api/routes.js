@@ -19,7 +19,10 @@ module.exports = (router) => {
         res.json(await game.get(id));
     });
 
-    router.delete('/game/deleteGame', deleteGame);
+    router.delete('/game/deleteGame', async (req, res) => {
+        await deleteGame(req.body);
+        res.status(200).end();
+    });
 
     router.post('/game/create', async (req, res) => {
         const { body } = req;
@@ -143,5 +146,4 @@ module.exports = (router) => {
             res.status(500).json({ error: 'Failed to fetch players' });
         }
     });
-
 };

@@ -8,7 +8,7 @@ const get = async (id) => {
     const gameQueryResults = await execute('getGame.sql', [id]);
 
     const configurationQueryResults = await execute('getConfiguration.sql', [
-        gameQueryResults[0].config_id,
+        gameQueryResults[0]?.config_id,
     ]);
 
     return {
@@ -40,10 +40,7 @@ const join = async (player, game) => {
         player.session_token,
         player.nickname,
     ]);
-    await execute('insertPlayerToGame.sql', [
-        game.game_id,
-        playerQueryResults[0].player_id
-    ]);
+    await execute('insertPlayerToGame.sql', [game.game_id, playerQueryResults[0].player_id]);
 
     return {
         ...playerQueryResults[0],
