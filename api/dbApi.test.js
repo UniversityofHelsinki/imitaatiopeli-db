@@ -8,13 +8,36 @@ const {
     expect,
 } = require('@jest/globals');
 const database = require('../services/database');
+const { deleteGame } = require('./dbApi');
 
 // Test data constants
 const TEST_DATA = {
     PLAYER: {
         player_id: 10,
-        roles: 'human',
-        game_id: 20,
+        nickname: 'human',
+        game_id: 1,
+    },
+    GAME: {
+        game_id: 1,
+        config_id: 1,
+        start_time: new Date(),
+        end_time: new Date(),
+    },
+    GAME_CONFIGURATION: {
+        game_id: 1,
+        ai_prompt: 'test prompt',
+        game_name: 'test game',
+        theme_description: 'test theme',
+        language_used: 'fi',
+        instructions_for_players: 'test instructions',
+        is_research_game: true,
+        research_description: 'test research',
+        language_model: 2,
+    },
+    GAME_PLAYERS: {
+        game_id: 1,
+        player_id: 10,
+        joined_at: new Date(),
     },
 };
 
@@ -23,18 +46,62 @@ const SQL = {
     CREATE_TEMP_PLAYER_TABLE: `
         CREATE TEMPORARY TABLE IF NOT EXISTS PLAYER (
             player_id SERIAL,
-            roles VARCHAR(255),
+            nickname VARCHAR(100),
             game_id INTEGER,
             created_at TIMESTAMP,
             PRIMARY KEY(player_id)
         );
     `,
     INSERT_TEST_PLAYER: `
-        INSERT INTO player (player_id, roles, game_id, created_at) 
+        INSERT INTO player (player_id, nickname, game_id, created_at) 
         VALUES ($1, $2, $3, NOW());
     `,
+    CREATE_TEMP_GAME_TABLE: `
+        CREATE TEMPORARY TABLE IF NOT EXISTS GAME (
+           game_id SERIAL,
+           config_id INTEGER,
+           start_time TIMESTAMP,
+           end_time TIMESTAMP,
+           PRIMARY KEY(game_id)
+        );
+    `,
+    INSERT_TEST_GAME: `
+        INSERT INTO GAME (game_id, config_id, start_time, end_time)
+        VALUES ($1, $2, $3, $4);`,
+    CREATE_TEMP_GAME_CONFIGURATION_TABLE: `
+        CREATE TEMPORARY TABLE IF NOT EXISTS GAME_CONFIGURATION (
+           config_id SERIAL,
+           ai_prompt TEXT,
+           game_name VARCHAR(255),
+           theme_description TEXT,
+           language_used VARCHAR(255),
+           instructions_for_players TEXT,
+           is_research_game BOOLEAN,
+           research_description TEXT,
+           language_model INTEGER,
+           PRIMARY KEY(config_id)
+    )`,
+    INSERT_TEST_GAME_CONFIGURATION: `
+        INSERT INTO GAME_CONFIGURATION (ai_prompt, game_name, theme_description, language_used, instructions_for_players, is_research_game, research_description, language_model)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8);`,
+    CREATE_TEMP_GAME_PLAYERS_TABLE: `
+        CREATE TEMPORARY TABLE IF NOT EXISTS GAME_PLAYERS (
+           game_id INTEGER,
+           player_id INTEGER,
+           joined_at TIMESTAMP,
+           PRIMARY KEY(game_id, player_id)
+    )`,
+    INSERT_TEST_GAME_PLAYERS: `
+        INSERT INTO GAME_PLAYERS (game_id, player_id, joined_at)
+        VALUES ($1, $2, $3);`,
+
     SELECT_ALL_PLAYERS: 'SELECT * FROM PLAYER',
-    DROP_TEMP_TABLE: 'DROP TABLE IF EXISTS pg_temp.player;',
+    SELECT_GAME_PLAYERS: 'SELECT * FROM GAME_PLAYERS WHERE game_id = $1',
+    SELECT_PLAYER: 'SELECT * FROM PLAYER WHERE game_id = $1',
+    SELECT_GAME: 'SELECT * FROM GAME WHERE game_id = $1',
+    SELECT_GAME_CONFIGURATION: 'SELECT * FROM GAME_CONFIGURATION WHERE config_id = $1',
+    DROP_TEMP_TABLE:
+        'DROP TABLE IF EXISTS pg_temp.player, pg_temp.game, pg_temp.game_configuration, pg_temp.game_players;',
 };
 
 // Utility functions
@@ -43,13 +110,74 @@ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const createTestPlayer = async (playerData = TEST_DATA.PLAYER) => {
     await database.query(SQL.INSERT_TEST_PLAYER, [
         playerData.player_id,
-        playerData.roles,
+        playerData.nickname,
         playerData.game_id,
+    ]);
+};
+
+const createTestGame = async (gameData = TEST_DATA.GAME) => {
+    await database.query(SQL.INSERT_TEST_GAME, [
+        gameData.game_id,
+        gameData.config_id,
+        gameData.start_time,
+        gameData.end_time,
+    ]);
+};
+
+const createSecondTestGame = async (gameData = TEST_DATA.GAME) => {
+    await database.query(SQL.INSERT_TEST_GAME, [
+        gameData.game_id,
+        gameData.config_id,
+        gameData.start_time,
+        gameData.end_time,
+    ]);
+};
+
+const createTestGameConfiguration = async (
+    gameDataConfiguration = TEST_DATA.GAME_CONFIGURATION,
+) => {
+    await database.query(SQL.INSERT_TEST_GAME_CONFIGURATION, [
+        gameDataConfiguration.ai_prompt,
+        gameDataConfiguration.game_name,
+        gameDataConfiguration.theme_description,
+        gameDataConfiguration.language_used,
+        gameDataConfiguration.instructions_for_players,
+        gameDataConfiguration.is_research_game,
+        gameDataConfiguration.research_description,
+        gameDataConfiguration.language_model,
+    ]);
+};
+
+const createTestGamePlayers = async (gamePlayers = TEST_DATA.GAME_PLAYERS) => {
+    await database.query(SQL.INSERT_TEST_GAME_PLAYERS, [
+        gamePlayers.game_id,
+        gamePlayers.player_id,
+        gamePlayers.joined_at,
     ]);
 };
 
 const getAllPlayers = async () => {
     const result = await database.query(SQL.SELECT_ALL_PLAYERS);
+    return result.rows;
+};
+
+const getGamePlayers = async (gameId) => {
+    const result = await database.query(SQL.SELECT_GAME_PLAYERS, [gameId]);
+    return result.rows;
+};
+
+const getPlayer = async (gameId) => {
+    const result = await database.query(SQL.SELECT_PLAYER, [gameId]);
+    return result.rows;
+};
+
+const getGame = async (gameId) => {
+    const result = await database.query(SQL.SELECT_GAME, [gameId]);
+    return result.rows;
+};
+
+const getGameConfiguration = async (gameId) => {
+    const result = await database.query(SQL.SELECT_GAME_CONFIGURATION, [gameId]);
     return result.rows;
 };
 
@@ -61,9 +189,15 @@ beforeAll(async () => {
 beforeEach(async () => {
     // Create temporary table
     await database.query(SQL.CREATE_TEMP_PLAYER_TABLE);
+    await database.query(SQL.CREATE_TEMP_GAME_TABLE);
+    await database.query(SQL.CREATE_TEMP_GAME_CONFIGURATION_TABLE);
+    await database.query(SQL.CREATE_TEMP_GAME_PLAYERS_TABLE);
 
     // Insert test data
     await createTestPlayer();
+    await createTestGame();
+    await createTestGameConfiguration();
+    await createTestGamePlayers();
 });
 
 afterEach(async () => {
@@ -82,7 +216,7 @@ describe('Database tests', () => {
 
         expect(players).toHaveLength(1);
         expect(players[0].player_id).toBe(TEST_DATA.PLAYER.player_id);
-        expect(players[0].roles).toBe(TEST_DATA.PLAYER.roles);
+        expect(players[0].nickname).toBe(TEST_DATA.PLAYER.nickname);
         expect(players[0].game_id).toBe(TEST_DATA.PLAYER.game_id);
         expect(players[0].created_at).toBeInstanceOf(Date);
     });
@@ -91,7 +225,7 @@ describe('Database tests', () => {
         // Add another player
         const secondPlayer = {
             player_id: 11,
-            roles: 'ai',
+            nickname: 'Reiska',
             game_id: 21,
         };
         await createTestPlayer(secondPlayer);
@@ -100,5 +234,67 @@ describe('Database tests', () => {
 
         expect(players).toHaveLength(2);
         expect(players.find((p) => p.player_id === secondPlayer.player_id)).toBeDefined();
+    });
+
+    test('Delete from game_players table', async () => {
+        const gameId = TEST_DATA.GAME.game_id;
+
+        const game_players_before_delete = await getGamePlayers(gameId);
+        expect(game_players_before_delete).toHaveLength(1);
+
+        await deleteGame({ game_id: gameId }, {});
+
+        const game_players_after_delete = await getGamePlayers(gameId);
+        expect(game_players_after_delete).toHaveLength(0);
+    });
+
+    test('Delete from player table', async () => {
+        const gameId = TEST_DATA.GAME.game_id;
+
+        const players_before_delete = await getPlayer(gameId);
+        expect(players_before_delete).toHaveLength(1);
+
+        await deleteGame({ game_id: gameId }, {});
+
+        const players_after_delete = await getPlayer(gameId);
+        expect(players_after_delete).toHaveLength(0);
+    });
+
+    test('Delete from game table', async () => {
+        const secondGame = {
+            game_id: 2,
+            config_id: 2,
+            start_time: new Date(),
+            end_time: new Date(),
+        };
+
+        await createSecondTestGame(secondGame);
+
+        const gameId = TEST_DATA.GAME.game_id;
+
+        let games_before_delete = await getGame(gameId);
+        expect(games_before_delete).toHaveLength(1);
+        games_before_delete = await getGame(2);
+        expect(games_before_delete).toHaveLength(1);
+
+        await deleteGame({ game_id: gameId }, {});
+
+        let games_after_delete = await getGame(gameId);
+        expect(games_after_delete).toHaveLength(0);
+
+        games_after_delete = await getGame(2);
+        expect(games_after_delete).toHaveLength(1);
+    });
+
+    test('Delete from game_configuration table', async () => {
+        const gameId = TEST_DATA.GAME.game_id;
+
+        const games_before_delete = await getGameConfiguration(gameId);
+        expect(games_before_delete).toHaveLength(1);
+
+        await deleteGame({ game_id: gameId }, {});
+
+        const games_after_delete = await getGameConfiguration(gameId);
+        expect(games_after_delete).toHaveLength(0);
     });
 });
