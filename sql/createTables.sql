@@ -43,9 +43,6 @@ CREATE TABLE IF NOT EXISTS GAME (
                                     end_time TIMESTAMPTZ,
                                     game_code VARCHAR(255) UNIQUE NOT NULL,
                                     duration_minutes integer,
-                                    judge_id INTEGER REFERENCES PLAYER(player_id),
-                                    human_id INTEGER REFERENCES PLAYER(player_id),
-                                    ai_id INTEGER REFERENCES PLAYER(player_id),
                                     PRIMARY KEY(game_id)
 );
 
