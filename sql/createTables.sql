@@ -128,5 +128,11 @@ CREATE TABLE IF NOT EXISTS game_players (
     FOREIGN KEY (player_id) REFERENCES PLAYER(player_id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS PLAYER_COMBINATION (
+  game_id INTEGER REFERENCES GAME(game_id),
+  judge_id INTEGER REFERENCES PLAYER(player_id),
+  player_id INTEGER REFERENCES PLAYER(player_id)
+);
+
 CREATE INDEX IF NOT EXISTS idx_game_players_game_id ON game_players(game_id);
 CREATE INDEX IF NOT EXISTS idx_game_players_player_id ON game_players(player_id);

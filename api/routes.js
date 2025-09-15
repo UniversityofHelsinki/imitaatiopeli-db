@@ -73,6 +73,25 @@ module.exports = (router) => {
 
     router.put('/game/:id/start', async (req, res) => {
         const { id } = req.params;
+
+        const players = await execute('players.sql', [id]);
+        const aiPlayers = players.map((player, i) => [id, null, `ai_${i}`]);
+        for (const aiPlayer of aiPlayers) {
+            const created = await execute('createPlayer.sql', aiPlayer);
+            aiPlayer.player_id = created[0].player_id;
+        }
+
+        const pairs = players
+            .map((player, i) => [
+                [id, player.player_id, players[(i + 1) % players.length].player_id],
+                [id, player.player_id, aiPlayers[i].player_id],
+            ])
+            .flat();
+
+        for (const pair of pairs) {
+            await execute('createPair.sql', pair);
+        }
+
         await execute('startGame.sql', [id]);
         return res.status(200).end();
     });
@@ -143,5 +162,4 @@ module.exports = (router) => {
             res.status(500).json({ error: 'Failed to fetch players' });
         }
     });
-
 };
