@@ -26,8 +26,8 @@ CREATE TABLE IF NOT EXISTS GAME_CONFIGURATION (
 
 CREATE TABLE IF NOT EXISTS PLAYER (
                                       player_id SERIAL,
-                                      roles VARCHAR(255),
                                       game_id integer,
+                                      is_pretender BOOLEAN,
                                       created_at TIMESTAMP,
                                       PRIMARY KEY(player_id),
                                       nickname VARCHAR(100) NOT NULL,
