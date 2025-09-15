@@ -43,6 +43,9 @@ CREATE TABLE IF NOT EXISTS GAME (
                                     end_time TIMESTAMPTZ,
                                     game_code VARCHAR(255) UNIQUE NOT NULL,
                                     duration_minutes integer,
+                                    judge_id INTEGER REFERENCES PLAYER(player_id),
+                                    human_id INTEGER REFERENCES PLAYER(player_id),
+                                    ai_id INTEGER REFERENCES PLAYER(player_id),
                                     PRIMARY KEY(game_id)
 );
 
@@ -123,6 +126,12 @@ CREATE TABLE IF NOT EXISTS game_players (
     PRIMARY KEY (game_id, player_id),
     FOREIGN KEY (game_id) REFERENCES GAME(game_id) ON DELETE CASCADE,
     FOREIGN KEY (player_id) REFERENCES PLAYER(player_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS PLAYER_COMBINATION (
+  game_id INTEGER REFERENCES GAME(game_id),
+  judge_id INTEGER REFERENCES PLAYER(player_id),
+  player_id INTEGER REFERENCES PLAYER(player_id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_game_players_game_id ON game_players(game_id);

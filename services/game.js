@@ -39,11 +39,9 @@ const join = async (player, game) => {
         game.game_id,
         player.session_token,
         player.nickname,
+        player.is_pretender,
     ]);
-    await execute('insertPlayerToGame.sql', [
-        game.game_id,
-        playerQueryResults[0].player_id
-    ]);
+    await execute('insertPlayerToGame.sql', [game.game_id, playerQueryResults[0].player_id]);
 
     return {
         ...playerQueryResults[0],
