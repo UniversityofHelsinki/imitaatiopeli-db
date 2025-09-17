@@ -56,7 +56,7 @@ const SQL = {
     `,
     INSERT_TEST_PLAYER: `
         INSERT INTO player (player_id, is_pretender, nickname, game_id, created_at)
-        VALUES ($1, $2, $3, NOW());
+        VALUES ($1, $2, $3, $4, NOW());
     `,
     CREATE_TEMP_GAME_TABLE: `
         CREATE TEMPORARY TABLE IF NOT EXISTS GAME (
