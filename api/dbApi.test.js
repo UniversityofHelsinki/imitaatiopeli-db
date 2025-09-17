@@ -13,7 +13,7 @@ const database = require('../services/database');
 const TEST_DATA = {
     PLAYER: {
         player_id: 10,
-        roles: 'human',
+        is_pretender: false,
         game_id: 20,
     },
 };
@@ -23,14 +23,14 @@ const SQL = {
     CREATE_TEMP_PLAYER_TABLE: `
         CREATE TEMPORARY TABLE IF NOT EXISTS PLAYER (
             player_id SERIAL,
-            roles VARCHAR(255),
+            is_pretender BOOLEAN,
             game_id INTEGER,
             created_at TIMESTAMP,
             PRIMARY KEY(player_id)
         );
     `,
     INSERT_TEST_PLAYER: `
-        INSERT INTO player (player_id, roles, game_id, created_at) 
+        INSERT INTO player (player_id, is_pretender, game_id, created_at) 
         VALUES ($1, $2, $3, NOW());
     `,
     SELECT_ALL_PLAYERS: 'SELECT * FROM PLAYER',
@@ -43,7 +43,7 @@ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const createTestPlayer = async (playerData = TEST_DATA.PLAYER) => {
     await database.query(SQL.INSERT_TEST_PLAYER, [
         playerData.player_id,
-        playerData.roles,
+        playerData.is_pretender,
         playerData.game_id,
     ]);
 };
@@ -82,7 +82,7 @@ describe('Database tests', () => {
 
         expect(players).toHaveLength(1);
         expect(players[0].player_id).toBe(TEST_DATA.PLAYER.player_id);
-        expect(players[0].roles).toBe(TEST_DATA.PLAYER.roles);
+        expect(players[0].is_pretender).toBe(TEST_DATA.PLAYER.is_pretender);
         expect(players[0].game_id).toBe(TEST_DATA.PLAYER.game_id);
         expect(players[0].created_at).toBeInstanceOf(Date);
     });
@@ -91,7 +91,7 @@ describe('Database tests', () => {
         // Add another player
         const secondPlayer = {
             player_id: 11,
-            roles: 'ai',
+            is_pretender: false,
             game_id: 21,
         };
         await createTestPlayer(secondPlayer);
