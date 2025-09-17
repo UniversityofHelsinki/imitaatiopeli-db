@@ -8,7 +8,7 @@ const get = async (id) => {
     const gameQueryResults = await execute('getGame.sql', [id]);
 
     const configurationQueryResults = await execute('getConfiguration.sql', [
-        gameQueryResults[0].config_id,
+        gameQueryResults[0]?.config_id,
     ]);
 
     return {
