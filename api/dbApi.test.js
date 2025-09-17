@@ -15,6 +15,7 @@ const TEST_DATA = {
     PLAYER: {
         player_id: 10,
         nickname: 'human',
+        is_pretender: false,
         game_id: 1,
     },
     GAME: {
@@ -46,6 +47,7 @@ const SQL = {
     CREATE_TEMP_PLAYER_TABLE: `
         CREATE TEMPORARY TABLE IF NOT EXISTS PLAYER (
             player_id SERIAL,
+            is_pretender BOOLEAN,
             nickname VARCHAR(100),
             game_id INTEGER,
             created_at TIMESTAMP,
@@ -53,7 +55,7 @@ const SQL = {
         );
     `,
     INSERT_TEST_PLAYER: `
-        INSERT INTO player (player_id, nickname, game_id, created_at) 
+        INSERT INTO player (player_id, is_pretender, nickname, game_id, created_at)
         VALUES ($1, $2, $3, NOW());
     `,
     CREATE_TEMP_GAME_TABLE: `
@@ -110,6 +112,7 @@ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const createTestPlayer = async (playerData = TEST_DATA.PLAYER) => {
     await database.query(SQL.INSERT_TEST_PLAYER, [
         playerData.player_id,
+        playerData.is_pretender,
         playerData.nickname,
         playerData.game_id,
     ]);
@@ -216,6 +219,7 @@ describe('Database tests', () => {
 
         expect(players).toHaveLength(1);
         expect(players[0].player_id).toBe(TEST_DATA.PLAYER.player_id);
+        expect(players[0].is_pretender).toBe(TEST_DATA.PLAYER.is_pretender);
         expect(players[0].nickname).toBe(TEST_DATA.PLAYER.nickname);
         expect(players[0].game_id).toBe(TEST_DATA.PLAYER.game_id);
         expect(players[0].created_at).toBeInstanceOf(Date);
@@ -225,6 +229,7 @@ describe('Database tests', () => {
         // Add another player
         const secondPlayer = {
             player_id: 11,
+            is_pretender: false,
             nickname: 'Reiska',
             game_id: 21,
         };

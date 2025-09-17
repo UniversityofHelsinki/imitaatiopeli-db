@@ -46,7 +46,7 @@ exports.savePlayer = async (player) => {
             );
             const result = await database.query(insertPlayerSQL, [
                 player.player_id,
-                player.roles,
+                player.is_pretender,
                 player.game_id,
                 new Date(),
             ]);
@@ -62,7 +62,7 @@ exports.savePlayer = async (player) => {
                 'utf8',
             );
             const result = await database.query(insertPlayerSQL, [
-                player.roles,
+                player.is_pretender,
                 player.game_id,
                 new Date(),
             ]);
