@@ -104,6 +104,7 @@ CREATE TABLE IF NOT EXISTS JUDGE_GUESS (
                                            created TIMESTAMP,
                                            judge_id INTEGER REFERENCES PLAYER(player_id),
                                            chosen_answer_id INTEGER REFERENCES ANSWER(answer_id),
+                                           guess_text VARCHAR(255),
                                            PRIMARY KEY(quess_id)
 );
 
