@@ -9,13 +9,13 @@ CREATE TABLE IF NOT EXISTS LANGUAGE_MODEL (
 CREATE TABLE IF NOT EXISTS GAME_CONFIGURATION (
                                                   config_id SERIAL,
                                                   ai_prompt VARCHAR,
-                                                  model_temperature integer,
+                                                  model_temperature FLOAT DEFAULT 0.7,
                                                   game_name VARCHAR(255),
                                                   theme_description VARCHAR(255),
                                                   max_duration_minutes integer,
                                                   max_questions integer,
                                                   language_model INTEGER REFERENCES LANGUAGE_MODEL(model_id),
-                                                  answer_randomization BOOLEAN,
+                                                  answer_randomization BOOLEAN DEFAULT FALSE,
                                                   background_info BOOLEAN,
                                                   language_used VARCHAR(255),
                                                   instructions_for_players VARCHAR(4000),
@@ -26,7 +26,6 @@ CREATE TABLE IF NOT EXISTS GAME_CONFIGURATION (
 
 CREATE TABLE IF NOT EXISTS PLAYER (
                                       player_id SERIAL,
-                                      game_id integer,
                                       is_pretender BOOLEAN,
                                       created_at TIMESTAMP,
                                       PRIMARY KEY(player_id),
@@ -43,9 +42,6 @@ CREATE TABLE IF NOT EXISTS GAME (
                                     end_time TIMESTAMPTZ,
                                     game_code VARCHAR(255) UNIQUE NOT NULL,
                                     duration_minutes integer,
-                                    judge_id INTEGER REFERENCES PLAYER(player_id),
-                                    human_id INTEGER REFERENCES PLAYER(player_id),
-                                    ai_id INTEGER REFERENCES PLAYER(player_id),
                                     PRIMARY KEY(game_id)
 );
 
@@ -85,6 +81,7 @@ CREATE TABLE IF NOT EXISTS QUESTION (
                                         game_id integer REFERENCES GAME(game_id),
                                         question_text VARCHAR(255),
                                         created TIMESTAMP,
+                                        judge_id INTEGER REFERENCES PLAYER(player_id),
                                         PRIMARY KEY(question_id)
 );
 
@@ -95,16 +92,18 @@ CREATE TABLE IF NOT EXISTS ANSWER (
                                       answer_text VARCHAR(255),
                                       answer_order integer,
                                       created TIMESTAMP,
+                                      is_pretender BOOLEAN,
                                       PRIMARY KEY(answer_id)
 );
 
 CREATE TABLE IF NOT EXISTS JUDGE_GUESS (
                                            quess_id SERIAL,
                                            question_id INTEGER REFERENCES QUESTION(question_id),
-                                           chosen_answer_order integer,
-                                           confidence_procent integer,
+                                           confidence_percent integer,
                                            was_correct BOOLEAN,
                                            created TIMESTAMP,
+                                           judge_id INTEGER REFERENCES PLAYER(player_id),
+                                           chosen_answer_id INTEGER REFERENCES ANSWER(answer_id),
                                            PRIMARY KEY(quess_id)
 );
 
@@ -113,13 +112,13 @@ CREATE TABLE IF NOT EXISTS GAME_SUMMARY (
                                             game_id INTEGER REFERENCES GAME(game_id),
                                             total_questions integer,
                                             correct_questions integer,
-                                            accurary_percent float,
+                                            accuracy_percent float,
                                             final_guess integer,
                                             final_guess_correct BOOLEAN,
                                             PRIMARY KEY(summary_id)
 );
 
-CREATE TABLE IF NOT EXISTS game_players (
+CREATE TABLE IF NOT EXISTS GAME_PLAYERS (
     game_id INTEGER NOT NULL,
     player_id INTEGER NOT NULL,
     joined_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
