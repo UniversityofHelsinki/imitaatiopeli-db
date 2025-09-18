@@ -1,0 +1,1 @@
+DELETE FROM player WHERE game_id = $1;
