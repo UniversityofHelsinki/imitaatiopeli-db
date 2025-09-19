@@ -34,6 +34,7 @@ const TEST_DATA = {
         is_research_game: true,
         research_description: 'test research',
         language_model: 2,
+        model_temperature: 0.5,
     },
     GAME_PLAYERS: {
         game_id: 1,
@@ -81,11 +82,12 @@ const SQL = {
            is_research_game BOOLEAN,
            research_description TEXT,
            language_model INTEGER,
+           model_temperature FLOAT,
            PRIMARY KEY(config_id)
     )`,
     INSERT_TEST_GAME_CONFIGURATION: `
-        INSERT INTO GAME_CONFIGURATION (ai_prompt, game_name, theme_description, language_used, instructions_for_players, is_research_game, research_description, language_model)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8);`,
+        INSERT INTO GAME_CONFIGURATION (ai_prompt, game_name, theme_description, language_used, instructions_for_players, is_research_game, research_description, language_model, model_temperature)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);`,
     CREATE_TEMP_GAME_PLAYERS_TABLE: `
         CREATE TEMPORARY TABLE IF NOT EXISTS GAME_PLAYERS (
            game_id INTEGER,
@@ -148,6 +150,7 @@ const createTestGameConfiguration = async (
         gameDataConfiguration.is_research_game,
         gameDataConfiguration.research_description,
         gameDataConfiguration.language_model,
+        gameDataConfiguration.model_temperature,
     ]);
 };
 
