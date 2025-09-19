@@ -11,7 +11,7 @@ module.exports = (router) => {
         res.json({ message: 'Hello, world!' });
     });
 
-    router.get('/getplayerById/:playerId', getPlayerById);
+    router.get('/getPlayerById/:playerId', getPlayerById);
     router.post('/saveplayer', savePlayer);
 
     router.get('/game/:id', async (req, res) => {

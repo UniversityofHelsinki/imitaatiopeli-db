@@ -11,9 +11,22 @@ exports.getPlayerById = async (req, res) => {
             path.resolve(__dirname, '../sql/getPlayerById.sql'),
             'utf8',
         );
-        const result = await database.query(getPlayerSQL, [playerId]);
-        if (result && result.rowCount > 0) {
-            return result.rows[0];
+        const getPlayerGameIdSQL = fs.readFileSync(
+            path.resolve(__dirname, '../sql/getPlayerGameId.sql'),
+            'utf8',
+        );
+
+        const playerResult = await database.query(getPlayerSQL, [playerId]);
+        if (playerResult && playerResult.rowCount > 0) {
+            const player = playerResult.rows[0];
+
+            // Get the game ID for this player
+            const gameResult = await database.query(getPlayerGameIdSQL, [playerId]);
+            if (gameResult && gameResult.rowCount > 0) {
+                player.gameId = gameResult.rows[0].game_id;
+            }
+
+            res.json(player);
         } else {
             res.json({
                 message: messageKeys.PLAYER_NOT_EXISTS,
