@@ -136,3 +136,9 @@ CREATE TABLE IF NOT EXISTS PLAYER_COMBINATION (
 
 CREATE INDEX IF NOT EXISTS idx_game_players_game_id ON game_players(game_id);
 CREATE INDEX IF NOT EXISTS idx_game_players_player_id ON game_players(player_id);
+
+INSERT INTO PLAYER (nickname, is_pretender, created_at)
+SELECT 'ai_player', TRUE, NOW()
+WHERE NOT EXISTS (
+    SELECT 1 FROM PLAYER WHERE nickname = 'ai_player'
+);
