@@ -1,1 +1,1 @@
-SELECT * FROM PLAYER WHERE GAME_ID = $1;
+SELECT * FROM player WHERE player_id = ANY($1::int[]);
