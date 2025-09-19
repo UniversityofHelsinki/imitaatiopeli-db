@@ -35,6 +35,7 @@ module.exports = (router) => {
             body.configuration.is_research_game,
             body.configuration.research_description,
             body.configuration.language_model,
+            body.configuration.model_temperature,
         ]);
 
         const game = await execute('createGame.sql', [
@@ -64,6 +65,7 @@ module.exports = (router) => {
             body.configuration.is_research_game,
             body.configuration.research_description,
             body.configuration.language_model,
+            body.configuration.model_temperature,
             body.configuration.config_id,
         ]);
 
