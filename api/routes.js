@@ -78,9 +78,10 @@ module.exports = (router) => {
 
     router.put('/game/:id/start', async (req, res) => {
         const { id } = req.params;
-
-        const players = await execute('players.sql', [id]);
-        const aiPlayers = players.map((player, i) => [id, null, `ai_${i}`, true]);
+        const gamePlayers = await execute('getGamePlayersByGameId.sql', [id]);
+        const playerIds = gamePlayers?.map((r) => Number(r.player_id));
+        const players = await execute('players.sql', [playerIds]);
+        const aiPlayers = players.map((player, i) => [null, `ai_${i}`, true]);
         for (const aiPlayer of aiPlayers) {
             const created = await execute('createPlayer.sql', aiPlayer);
             aiPlayer.player_id = created[0].player_id;
@@ -142,7 +143,6 @@ module.exports = (router) => {
             const player = await game.join(
                 {
                     nickname: body.nickname,
-                    game_id: g.game_id,
                     session_token: crypto.randomUUID(),
                     is_pretender: false,
                 },

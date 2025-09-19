@@ -1,1 +1,1 @@
-DELETE FROM player WHERE game_id = $1;
+DELETE FROM player WHERE player_id = ANY($1::int[]);

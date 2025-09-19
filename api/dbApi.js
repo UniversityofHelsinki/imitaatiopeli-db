@@ -28,8 +28,10 @@ exports.getPlayerById = async (req, res) => {
 exports.deleteGame = async (req, res) => {
     const game_id = req?.game_id;
     const transaction = await database.transaction();
+    const players = await transaction.query('getGamePlayersByGameId.sql', [game_id]);
+    const playerIds = players?.map((r) => Number(r.player_id));
     await transaction.query('deleteGamePlayers.sql', [game_id]);
-    await transaction.query('deletePlayers.sql', [game_id]);
+    await transaction.query('deletePlayers.sql', [playerIds]);
     await transaction.query('deleteGame.sql', [game_id]);
     await transaction.query('deleteConfiguration.sql', [game_id]);
     transaction.commit();

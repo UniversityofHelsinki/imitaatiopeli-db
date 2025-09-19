@@ -36,7 +36,6 @@ const getByCode = async (code) => {
 
 const join = async (player, game) => {
     const playerQueryResults = await execute('createPlayer.sql', [
-        game.game_id,
         player.session_token,
         player.nickname,
         player.is_pretender,
