@@ -35,6 +35,7 @@ module.exports = (router) => {
             body.configuration.is_research_game,
             body.configuration.research_description,
             body.configuration.language_model,
+            body.configuration.model_temperature,
         ]);
 
         const game = await execute('createGame.sql', [
@@ -64,6 +65,7 @@ module.exports = (router) => {
             body.configuration.is_research_game,
             body.configuration.research_description,
             body.configuration.language_model,
+            body.configuration.model_temperature,
             body.configuration.config_id,
         ]);
 
@@ -76,9 +78,10 @@ module.exports = (router) => {
 
     router.put('/game/:id/start', async (req, res) => {
         const { id } = req.params;
-
-        const players = await execute('players.sql', [id]);
-        const aiPlayers = players.map((player, i) => [id, null, `ai_${i}`, true]);
+        const gamePlayers = await execute('getGamePlayersByGameId.sql', [id]);
+        const playerIds = gamePlayers?.map((r) => Number(r.player_id));
+        const players = await execute('players.sql', [playerIds]);
+        const aiPlayers = players.map((player, i) => [null, `ai_${i}`, true]);
         for (const aiPlayer of aiPlayers) {
             const created = await execute('createPlayer.sql', aiPlayer);
             aiPlayer.player_id = created[0].player_id;
@@ -140,7 +143,6 @@ module.exports = (router) => {
             const player = await game.join(
                 {
                     nickname: body.nickname,
-                    game_id: g.game_id,
                     session_token: crypto.randomUUID(),
                     is_pretender: false,
                 },
@@ -164,6 +166,18 @@ module.exports = (router) => {
         } catch (error) {
             logger.error('Error fetching players for game:', error);
             res.status(500).json({ error: 'Failed to fetch players' });
+        }
+    });
+
+    router.get('/games/:id/judgeplayerpairs', async (req, res) => {
+        const { id } = req.params;
+
+        try {
+            const players = await execute('getJudgePlayerPairsOfGame.sql', [id]);
+            res.json(players);
+        } catch (error) {
+            logger.error('Error fetching judgeplayerpairs for game:', error);
+            res.status(500).json({ error: 'Failed to fetch judgeplayerpairs' });
         }
     });
 };

@@ -1,7 +1,8 @@
 SELECT
     p.player_id,
     p.nickname,
-    p.session_token
+    p.session_token,
+    p.is_pretender
 FROM
     PLAYER p
         INNER JOIN game_players gp ON p.player_id = gp.player_id
