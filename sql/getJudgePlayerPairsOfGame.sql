@@ -7,12 +7,10 @@ SELECT
     pp.nickname     AS player_nickname,
     pp.is_pretender AS player_is_pretender
 FROM player_combination pc
-         JOIN player pj
-              ON pj.game_id = pc.game_id
-                  AND pj.player_id = pc.judge_id
-         JOIN player pp
-              ON pp.game_id = pc.game_id
-                  AND pp.player_id = pc.player_id
+         JOIN game_players gpj ON gpj.game_id = pc.game_id AND gpj.player_id = pc.judge_id
+         JOIN player pj        ON pj.player_id = gpj.player_id
+         JOIN game_players gpp ON gpp.game_id = pc.game_id AND gpp.player_id = pc.player_id
+         JOIN player pp        ON pp.player_id = gpp.player_id
 WHERE pj.is_pretender = FALSE
   AND pp.is_pretender = FALSE
   AND pc.game_id = $1;
