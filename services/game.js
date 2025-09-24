@@ -44,6 +44,7 @@ const join = async (player, game) => {
 
     return {
         ...playerQueryResults[0],
+        game_id: game.game_id,
     };
 };
 
