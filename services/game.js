@@ -44,6 +44,7 @@ const join = async (player, game) => {
 
     return {
         ...playerQueryResults[0],
+        game_id: game.game_id,
     };
 };
 
@@ -53,9 +54,13 @@ const all = async (user) => {
 
     const gamesByConfiguration = {};
 
-    games.forEach((game) => {
-        gamesByConfiguration[game.config_id] = game;
-    });
+    for (const game of games) {
+        const playerCount = await execute('getGamePlayerCount.sql', [game.game_id]);
+        gamesByConfiguration[game.config_id] = {
+            ...game,
+            playerCount: parseInt(playerCount?.[0]?.player_count ?? 0, 10),
+        };
+    }
 
     return configurations.map((configuration) => ({
         ...gamesByConfiguration[configuration.config_id],
