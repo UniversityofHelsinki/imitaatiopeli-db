@@ -4,6 +4,7 @@ const game = require('../services/game');
 const { savePlayer } = require('../services/players');
 const { getPlayerById, deleteGame } = require('./dbApi');
 const crypto = require('node:crypto');
+const { insertAnswer } = require('../services/answer');
 
 module.exports = (router) => {
     router.get('/hello', (req, res) => {
@@ -175,5 +176,16 @@ module.exports = (router) => {
             logger.error('Error fetching judgeplayerpairs for game:', error);
             res.status(500).json({ error: 'Failed to fetch judgeplayerpairs' });
         }
+    });
+
+    router.post('/game/answer', async (req, res) => {
+        const { body } = req;
+        const result = await insertAnswer({
+            question_id: body.question_id,
+            player_id: body.player_id,
+            answer_text: body.answer_text,
+            is_pretender: false,
+        });
+        res.json(result);
     });
 };
