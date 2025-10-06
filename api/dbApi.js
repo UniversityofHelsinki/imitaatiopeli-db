@@ -38,6 +38,33 @@ exports.getPlayerById = async (req, res) => {
     }
 };
 
+exports.getJudgeById = async (req, res) => {
+    try {
+        const playerId = req.params.playerId;
+        const gameId = req.params.gameId;
+        const getJudgeSQL = fs.readFileSync(
+            path.resolve(__dirname, '../sql/getJudgeByGameIdAndPlayerId.sql'),
+            'utf8',
+        );
+
+        const playerCombinationResult = await database.query(getJudgeSQL, [
+            parseInt(playerId),
+            parseInt(gameId),
+        ]);
+        if (playerCombinationResult && playerCombinationResult.rowCount > 0) {
+            const judge = playerCombinationResult.rows[0];
+            res.json(judge);
+        } else {
+            res.json({
+                message: messageKeys.JUDGE_NOT_EXISTS,
+            });
+        }
+    } catch (err) {
+        logger.error('Error reading judge with playerID : ' + playerId + ' : ' + err);
+        throw err;
+    }
+};
+
 exports.deleteGame = async (req, res) => {
     const game_id = req?.game_id;
     const transaction = await database.transaction();
