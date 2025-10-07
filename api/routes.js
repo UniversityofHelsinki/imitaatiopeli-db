@@ -183,9 +183,9 @@ module.exports = (router) => {
     router.post('/game/answer', async (req, res) => {
         const { body } = req;
         const result = await insertAnswer({
-            question_id: body.question_id,
-            player_id: body.player_id,
-            answer_text: body.answer_text,
+            question_id: body.questionId,
+            player_id: body.playerId,
+            answer_text: body.answer,
             is_pretender: false,
         });
         res.json(result);
