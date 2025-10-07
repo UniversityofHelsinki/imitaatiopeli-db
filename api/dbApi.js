@@ -39,17 +39,17 @@ exports.getPlayerById = async (req, res) => {
 };
 
 exports.getJudgeById = async (req, res) => {
+    const playerId = req.params.playerId;
+    const gameId = req.params.gameId;
     try {
-        const playerId = req.params.playerId;
-        const gameId = req.params.gameId;
         const getJudgeSQL = fs.readFileSync(
             path.resolve(__dirname, '../sql/getJudgeByGameIdAndPlayerId.sql'),
             'utf8',
         );
 
         const playerCombinationResult = await database.query(getJudgeSQL, [
-            parseInt(playerId),
-            parseInt(gameId),
+            Number.parseInt(playerId),
+            Number.parseInt(gameId),
         ]);
         if (playerCombinationResult && playerCombinationResult.rowCount > 0) {
             const judge = playerCombinationResult.rows[0];
