@@ -1,0 +1,1 @@
+SELECT judge_id FROM PLAYER_COMBINATION WHERE player_id = $1 AND game_id = $2;
