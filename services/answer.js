@@ -9,6 +9,9 @@ const insertAnswer = async (answer) => {
         new Date(),
     ]);
 
+    console.log('Insert result:', result); // Debug what's returned
+    console.log('result[0]:', result[0]); // Debug the first element
+
     return {
         ...result[0],
     };
