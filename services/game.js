@@ -11,9 +11,14 @@ const get = async (id) => {
         gameQueryResults[0]?.config_id,
     ]);
 
+    const languageModelQueryResults = await execute('getLanguageModelById.sql', [
+        configurationQueryResults[0]?.language_model,
+    ]);
+
     return {
         ...gameQueryResults[0],
         configuration: configurationQueryResults[0],
+        languageModel: languageModelQueryResults[0],
     };
 };
 
@@ -86,6 +91,14 @@ const getLanguageModelById = async (id) => {
     return languageModel[0];
 };
 
+const getQuestionByIdAndGameId = async (questionId, gameId) => {
+    const question = await execute('getQuestionById.sql', [questionId, gameId]);
+    if (!question[0]) {
+        return null;
+    }
+    return question[0]?.question_text;
+};
+
 module.exports = {
     get,
     getByCode,
@@ -93,4 +106,5 @@ module.exports = {
     all,
     allLanguageModels,
     getLanguageModelById,
+    getQuestionByIdAndGameId,
 };

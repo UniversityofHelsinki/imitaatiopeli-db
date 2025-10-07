@@ -130,6 +130,15 @@ module.exports = (router) => {
         res.json(result);
     });
 
+    router.get('/game/question/:questionId/:gameId', async (req, res) => {
+        const { questionId, gameId } = req.params;
+        const result = await game.getQuestionByIdAndGameId(questionId, gameId);
+        if (!result) {
+            return res.status(404).json({ error: 'No questions found' });
+        }
+        res.json(result);
+    });
+
     router.get('/game/code/:code', async (req, res) => {
         const { code } = req.params;
         return res.json(await game.getByCode(code));
@@ -189,5 +198,13 @@ module.exports = (router) => {
             is_pretender: false,
         });
         res.json(result);
+    });
+
+    router.get('/aiPlayer', async (req, res) => {
+        const result = await execute('getAiPlayer.sql', []);
+        if (!result) {
+            return res.status(404).json({ error: 'No ai player found' });
+        }
+        res.json(result[0]);
     });
 };
