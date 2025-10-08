@@ -195,6 +195,7 @@ module.exports = (router) => {
             question_id: body.questionId,
             player_id: body.playerId,
             answer_text: body.answer,
+            game_id: body.gameId,
             is_pretender: body.is_pretender ? true : false,
         });
         res.json(result);
