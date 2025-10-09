@@ -93,6 +93,7 @@ CREATE TABLE IF NOT EXISTS ANSWER (
                                       answer_order integer,
                                       created TIMESTAMP,
                                       is_pretender BOOLEAN,
+                                      game_id integer REFERENCES GAME(game_id),
                                       PRIMARY KEY(answer_id)
 );
 
