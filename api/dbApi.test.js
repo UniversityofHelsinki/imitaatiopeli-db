@@ -41,6 +41,22 @@ const TEST_DATA = {
         player_id: 10,
         joined_at: new Date(),
     },
+    QUESTION: {
+        question_id: 1,
+        game_id: 1,
+        question_text: 'test question',
+        created: new Date(),
+        judge_id: 10,
+    },
+    ANSWER: {
+        answer_id: 1,
+        question_id: 1,
+        player_id: 10,
+        answer_text: 'test answer',
+        answer_order: 1,
+        created: new Date(),
+        is_pretender: false,
+    },
 };
 
 // SQL queries
@@ -84,7 +100,8 @@ const SQL = {
            language_model INTEGER,
            model_temperature FLOAT,
            PRIMARY KEY(config_id)
-    )`,
+        );
+    `,
     INSERT_TEST_GAME_CONFIGURATION: `
         INSERT INTO GAME_CONFIGURATION (ai_prompt, game_name, theme_description, language_used, instructions_for_players, is_research_game, research_description, language_model, model_temperature)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);`,
@@ -94,18 +111,47 @@ const SQL = {
            player_id INTEGER,
            joined_at TIMESTAMP,
            PRIMARY KEY(game_id, player_id)
-    )`,
+        );
+    `,
     INSERT_TEST_GAME_PLAYERS: `
         INSERT INTO GAME_PLAYERS (game_id, player_id, joined_at)
         VALUES ($1, $2, $3);`,
-
+    CREATE_TEMP_QUESTION_TABLE: `
+        CREATE TEMPORARY TABLE IF NOT EXISTS QUESTION (
+               question_id SERIAL,
+               game_id INTEGER,
+               question_text VARCHAR(255),
+               created TIMESTAMP,
+               judge_id INTEGER,
+               PRIMARY KEY(question_id)
+        );
+    `,
+    INSERT_TEST_QUESTION: `
+        INSERT INTO QUESTION (question_id, game_id, question_text, created, judge_id)
+        VALUES ($1, $2, $3, $4, $5);`,
+    CREATE_TEMP_ANSWER_TABLE: `
+        CREATE TEMPORARY TABLE IF NOT EXISTS ANSWER (
+          answer_id INTEGER,
+          question_id INTEGER,
+          player_id INTEGER,
+          answer_text VARCHAR(255),
+          answer_order INTEGER,
+          created TIMESTAMP,
+          is_pretender BOOLEAN,
+          PRIMARY KEY(answer_id)
+        );
+    `,
+    INSERT_TEST_ANSWER: `
+        INSERT INTO ANSWER (answer_id, question_id, player_id, answer_text, answer_order, created, is_pretender)
+        VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;`,
     SELECT_ALL_PLAYERS: 'SELECT * FROM PLAYER',
     SELECT_GAME_PLAYERS: 'SELECT * FROM GAME_PLAYERS WHERE game_id = $1',
+    SELECT_ANSWER: 'SELECT * FROM ANSWER WHERE player_id = $1',
     SELECT_PLAYER: 'SELECT * FROM PLAYER WHERE game_id = $1',
     SELECT_GAME: 'SELECT * FROM GAME WHERE game_id = $1',
     SELECT_GAME_CONFIGURATION: 'SELECT * FROM GAME_CONFIGURATION WHERE config_id = $1',
     DROP_TEMP_TABLE:
-        'DROP TABLE IF EXISTS pg_temp.player, pg_temp.game, pg_temp.game_configuration, pg_temp.game_players;',
+        'DROP TABLE IF EXISTS answer, question, player, game, game_configuration, game_players;',
 };
 
 // Utility functions
@@ -162,6 +208,28 @@ const createTestGamePlayers = async (gamePlayers = TEST_DATA.GAME_PLAYERS) => {
     ]);
 };
 
+const createTestQuestion = async (question = TEST_DATA.QUESTION) => {
+    await database.query(SQL.INSERT_TEST_QUESTION, [
+        question.question_id,
+        question.game_id,
+        question.question_text,
+        question.created,
+        question.judge_id,
+    ]);
+};
+
+const createTestAnswer = async (answer = TEST_DATA.ANSWER) => {
+    await database.query(SQL.INSERT_TEST_ANSWER, [
+        answer.answer_id,
+        answer.question_id,
+        answer.player_id,
+        answer.answer_text,
+        answer.answer_order,
+        answer.created,
+        answer.is_pretender,
+    ]);
+};
+
 const getAllPlayers = async () => {
     const result = await database.query(SQL.SELECT_ALL_PLAYERS);
     return result.rows;
@@ -170,6 +238,24 @@ const getAllPlayers = async () => {
 const getGamePlayers = async (gameId) => {
     const result = await database.query(SQL.SELECT_GAME_PLAYERS, [gameId]);
     return result.rows;
+};
+
+const getAnswers = async (playerId) => {
+    const result = await database.query(SQL.SELECT_ANSWER, [playerId]);
+    return result.rows;
+};
+
+const insertAnswer = async (answer) => {
+    const result = await database.query(SQL.INSERT_TEST_ANSWER, [
+        answer.answer_id,
+        answer.question_id,
+        answer.player_id,
+        answer.answer_text,
+        answer.answer_order,
+        answer.created,
+        answer.is_pretender,
+    ]);
+    return result.rows[0];
 };
 
 const getPlayer = async (gameId) => {
@@ -198,12 +284,16 @@ beforeEach(async () => {
     await database.query(SQL.CREATE_TEMP_GAME_TABLE);
     await database.query(SQL.CREATE_TEMP_GAME_CONFIGURATION_TABLE);
     await database.query(SQL.CREATE_TEMP_GAME_PLAYERS_TABLE);
+    await database.query(SQL.CREATE_TEMP_QUESTION_TABLE);
+    await database.query(SQL.CREATE_TEMP_ANSWER_TABLE);
 
     // Insert test data
     await createTestPlayer();
     await createTestGame();
     await createTestGameConfiguration();
     await createTestGamePlayers();
+    await createTestQuestion();
+    await createTestAnswer();
 });
 
 afterEach(async () => {
@@ -254,6 +344,36 @@ describe('Database tests', () => {
 
         const game_players_after_delete = await getGamePlayers(gameId);
         expect(game_players_after_delete).toHaveLength(0);
+    });
+
+    test('Get from answer table', async () => {
+        const playerId = TEST_DATA.PLAYER.player_id;
+        const answer = await getAnswers(playerId);
+        expect(answer).toHaveLength(1);
+    });
+
+    test('Insert answer in answer table', async () => {
+        const answerData = {
+            answer_id: 2,
+            question_id: 1,
+            player_id: 10,
+            answer_text: 'test answer 2',
+            answer_order: 1,
+            created: new Date(),
+            is_pretender: false,
+        };
+
+        const result = await insertAnswer(answerData);
+
+        expect(result).toBeDefined();
+        expect(result.answer_id).toBeDefined();
+        expect(result.question_id).toBe(answerData.question_id);
+        expect(result.player_id).toBe(answerData.player_id);
+        expect(result.answer_text).toBe(answerData.answer_text);
+        expect(result.is_pretender).toBe(answerData.is_pretender);
+
+        const answers = await getAnswers(answerData.player_id);
+        expect(answers.length).toBe(2);
     });
 
     test('Delete from player table', async () => {

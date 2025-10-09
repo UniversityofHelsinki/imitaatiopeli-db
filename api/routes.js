@@ -2,8 +2,9 @@ const { logger } = require('../logger');
 const { execute } = require('../services/database');
 const game = require('../services/game');
 const { savePlayer } = require('../services/players');
-const { getPlayerById, deleteGame } = require('./dbApi');
+const { getPlayerById, deleteGame, getJudgeById } = require('./dbApi');
 const crypto = require('node:crypto');
+const { insertAnswer } = require('../services/answer');
 
 module.exports = (router) => {
     router.get('/hello', (req, res) => {
@@ -12,6 +13,8 @@ module.exports = (router) => {
     });
 
     router.get('/getPlayerById/:playerId', getPlayerById);
+    router.get('/getJudgeById/:playerId/:gameId', getJudgeById);
+
     router.post('/saveplayer', savePlayer);
 
     router.get('/game/:id', async (req, res) => {
@@ -127,6 +130,15 @@ module.exports = (router) => {
         res.json(result);
     });
 
+    router.get('/game/question/:questionId/:gameId', async (req, res) => {
+        const { questionId, gameId } = req.params;
+        const result = await game.getQuestionByIdAndGameId(questionId, gameId);
+        if (!result) {
+            return res.status(404).json({ error: 'No questions found' });
+        }
+        res.json(result);
+    });
+
     router.get('/game/code/:code', async (req, res) => {
         const { code } = req.params;
         return res.json(await game.getByCode(code));
@@ -175,5 +187,25 @@ module.exports = (router) => {
             logger.error('Error fetching judgeplayerpairs for game:', error);
             res.status(500).json({ error: 'Failed to fetch judgeplayerpairs' });
         }
+    });
+
+    router.post('/game/answer', async (req, res) => {
+        const { body } = req;
+        const result = await insertAnswer({
+            question_id: body.questionId,
+            player_id: body.playerId,
+            answer_text: body.answer,
+            game_id: body.gameId,
+            is_pretender: body.is_pretender ? true : false,
+        });
+        res.json(result);
+    });
+
+    router.get('/aiPlayer', async (req, res) => {
+        const result = await execute('getAiPlayer.sql', []);
+        if (!result) {
+            return res.status(404).json({ error: 'No ai player found' });
+        }
+        res.json(result[0]);
     });
 };
