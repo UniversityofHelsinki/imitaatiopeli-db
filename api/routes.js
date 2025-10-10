@@ -5,6 +5,7 @@ const { savePlayer } = require('../services/players');
 const { getPlayerById, deleteGame, getJudgeById } = require('./dbApi');
 const crypto = require('node:crypto');
 const { insertAnswer } = require('../services/answer');
+const { getAIAnswerForQuestion, getJudgeQuestions } = require('../services/game');
 
 module.exports = (router) => {
     router.get('/hello', (req, res) => {
@@ -14,6 +15,9 @@ module.exports = (router) => {
 
     router.get('/getPlayerById/:playerId', getPlayerById);
     router.get('/getJudgeById/:playerId/:gameId', getJudgeById);
+
+    router.get('/getJudgeQuestions/:judgeId/:gameId', getJudgeQuestions);
+    router.get('/getAIAnswerForQuestion/:aiId/:questionId/:gameId', getAIAnswerForQuestion);
 
     router.post('/saveplayer', savePlayer);
 
