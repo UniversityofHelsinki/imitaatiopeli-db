@@ -1,4 +1,9 @@
 const { execute } = require('./database');
+const fs = require('fs');
+const path = require('path');
+const database = require('./database');
+const messageKeys = require('../utils/message-keys');
+const { logger } = require('../logger');
 
 const create = async ({ game }) => {
     console.log('luodaan peli');
@@ -99,6 +104,57 @@ const getQuestionByIdAndGameId = async (questionId, gameId) => {
     return question[0]?.question_text;
 };
 
+const getAIAnswerForQuestion = async (req, res) => {
+    const { aiId, questionId, gameId } = req.params;
+    try {
+        const getAIAnswerForQuestionSQL = fs.readFileSync(
+            path.resolve(__dirname, '../sql/getAIAnswerForQuestion.sql'),
+            'utf8',
+        );
+
+        const AIAnswerForQuestionResult = await database.query(getAIAnswerForQuestionSQL, [
+            Number.parseInt(aiId),
+            Number.parseInt(questionId),
+            Number.parseInt(gameId),
+        ]);
+        if (AIAnswerForQuestionResult && AIAnswerForQuestionResult.rowCount > 0) {
+            const result = AIAnswerForQuestionResult.rows[0];
+            res.json(result);
+        } else {
+            res.json({});
+        }
+    } catch (err) {
+        logger.error('Error reading answer with AI id : ' + aiId + ' : ' + err);
+        throw err;
+    }
+};
+
+const getJudgeQuestions = async (req, res) => {
+    const { judgeId, gameId } = req.params;
+    try {
+        const getJudgeQuestionsSQL = fs.readFileSync(
+            path.resolve(__dirname, '../sql/getJudgeQuestions.sql'),
+            'utf8',
+        );
+
+        const judgeQuestionsResult = await database.query(getJudgeQuestionsSQL, [
+            Number.parseInt(judgeId),
+            Number.parseInt(gameId),
+        ]);
+        if (judgeQuestionsResult && judgeQuestionsResult.rowCount > 0) {
+            const result = judgeQuestionsResult.rows;
+            res.json(result);
+        } else {
+            res.json({
+                message: messageKeys.JUDGE_QUESTION_NOT_EXIST,
+            });
+        }
+    } catch (err) {
+        logger.error('Error reading judge question ' + err);
+        throw err;
+    }
+};
+
 module.exports = {
     get,
     getByCode,
@@ -107,4 +163,6 @@ module.exports = {
     allLanguageModels,
     getLanguageModelById,
     getQuestionByIdAndGameId,
+    getAIAnswerForQuestion,
+    getJudgeQuestions,
 };
