@@ -130,7 +130,7 @@ const getAIAnswerForQuestion = async (req, res) => {
 };
 
 const getJudgeQuestions = async (req, res) => {
-    const { playerId, gameId } = req.params;
+    const { judgeId, gameId } = req.params;
     try {
         const getJudgeQuestionsSQL = fs.readFileSync(
             path.resolve(__dirname, '../sql/getJudgeQuestions.sql'),
@@ -138,7 +138,7 @@ const getJudgeQuestions = async (req, res) => {
         );
 
         const judgeQuestionsResult = await database.query(getJudgeQuestionsSQL, [
-            Number.parseInt(playerId),
+            Number.parseInt(judgeId),
             Number.parseInt(gameId),
         ]);
         if (judgeQuestionsResult && judgeQuestionsResult.rowCount > 0) {

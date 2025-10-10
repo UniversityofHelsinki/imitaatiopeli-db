@@ -16,7 +16,7 @@ module.exports = (router) => {
     router.get('/getPlayerById/:playerId', getPlayerById);
     router.get('/getJudgeById/:playerId/:gameId', getJudgeById);
 
-    router.get('/getJudgeQuestions/:playerId/:gameId', getJudgeQuestions);
+    router.get('/getJudgeQuestions/:judgeId/:gameId', getJudgeQuestions);
     router.get('/getAIAnswerForQuestion/:aiId/:questionId/:gameId', getAIAnswerForQuestion);
 
     router.post('/saveplayer', savePlayer);
