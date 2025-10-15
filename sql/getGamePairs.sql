@@ -1,0 +1,1 @@
+select * from player_combination where game_id = $1 and (player_id = $2 or judge_id = $2) and player_id <> 1;
