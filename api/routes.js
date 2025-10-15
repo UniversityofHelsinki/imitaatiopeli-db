@@ -181,15 +181,20 @@ module.exports = (router) => {
         }
     });
 
-    router.get('/games/:id/judgeplayerpairs', async (req, res) => {
-        const { id } = req.params;
-
+    router.post('/game/saveQuestion', async (req, res) => {
         try {
-            const players = await execute('getJudgePlayerPairsOfGame.sql', [id]);
-            res.json(players);
+            const { judgeId, gameId, questionText } = req.body;
+
+            const result = await execute('insertQuestion.sql', [judgeId, gameId, questionText]);
+
+            if (result?.length === 1) {
+                res.json(result[0]);
+            } else {
+                res.status(500).json({ error: 'Failed to save question' });
+            }
         } catch (error) {
-            logger.error('Error fetching judgeplayerpairs for game:', error);
-            res.status(500).json({ error: 'Failed to fetch judgeplayerpairs' });
+            logger.error('Error saving question:', error);
+            res.status(500).json({ error: 'Failed to save question' });
         }
     });
 
