@@ -1,6 +1,7 @@
 const messageKeys = require('../utils/message-keys');
 const dbApi = require('../api/dbApi');
 const { logger } = require('../logger');
+const database = require('./database');
 const savePlayer = async (req, res) => {
     try {
         let data = req.body;
@@ -20,6 +21,18 @@ const savePlayer = async (req, res) => {
     }
 };
 
+const pairs = async (req, res) => {
+    try {
+        const { gameId, judgeId } = req.params;
+        const pairs = await database.execute('getGamePairs.sql', [gameId, judgeId]);
+        res.json(pairs);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json([]);
+    }
+}
+
 module.exports = {
     savePlayer,
+    pairs
 };

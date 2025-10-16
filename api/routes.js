@@ -1,7 +1,7 @@
 const { logger } = require('../logger');
 const { execute } = require('../services/database');
 const game = require('../services/game');
-const { savePlayer } = require('../services/players');
+const { savePlayer, pairs } = require('../services/players');
 const { getPlayerById, deleteGame, getJudgeById } = require('./dbApi');
 const crypto = require('node:crypto');
 const { insertAnswer } = require('../services/answer');
@@ -18,6 +18,8 @@ module.exports = (router) => {
 
     router.get('/getJudgeQuestions/:judgeId/:gameId', getJudgeQuestions);
     router.get('/getAIAnswerForQuestion/:aiId/:questionId/:gameId', getAIAnswerForQuestion);
+
+    router.get('/players/pairs/:gameId/:judgeId', pairs);
 
     router.post('/saveplayer', savePlayer);
 
