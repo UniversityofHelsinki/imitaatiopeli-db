@@ -5,6 +5,7 @@ const { savePlayer, pairs } = require('../services/players');
 const { getPlayerById, deleteGame, getJudgeById } = require('./dbApi');
 const crypto = require('node:crypto');
 const { insertAnswer } = require('../services/answer');
+const { insertGuess } = require('../services/guess');
 const { getAIAnswerForQuestion, getJudgeQuestions } = require('../services/game');
 
 module.exports = (router) => {
@@ -218,5 +219,37 @@ module.exports = (router) => {
             return res.status(404).json({ error: 'No ai player found' });
         }
         res.json(result[0]);
+    });
+
+    router.get('/getAnswerById/:answerId', async (req, res) => {
+        const { answerId } = req.params;
+        const result = await execute('getAnswerById.sql', [answerId]);
+        if (!result) {
+            return res.status(404).json({ error: 'No answer found' });
+        }
+        res.json(result[0]);
+    });
+
+    router.get('/question/:questionId', async (req, res) => {
+        const { questionId } = req.params;
+        const result = await game.getQuestionById(questionId);
+        if (!result) {
+            return res.status(404).json({ error: 'No questions found' });
+        }
+        res.json(result);
+    });
+
+    router.post('/guess/save', async (req, res) => {
+        const { body } = req;
+
+        const result = await insertGuess({
+            questionId: body.questionId,
+            confidence: body.confidence,
+            result: body.result,
+            judgeId: body.judgeId,
+            answerId: body.answerId,
+            argument: body.argument,
+        });
+        res.json(result);
     });
 };

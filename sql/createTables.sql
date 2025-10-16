@@ -100,12 +100,12 @@ CREATE TABLE IF NOT EXISTS ANSWER (
 CREATE TABLE IF NOT EXISTS JUDGE_GUESS (
                                            quess_id SERIAL,
                                            question_id INTEGER REFERENCES QUESTION(question_id),
-                                           confidence_percent integer,
+                                           confidence integer,
                                            was_correct BOOLEAN,
                                            created TIMESTAMP,
                                            judge_id INTEGER REFERENCES PLAYER(player_id),
-                                           chosen_answer_id INTEGER REFERENCES ANSWER(answer_id),
-                                           guess_text VARCHAR(255),
+                                           answer_id INTEGER REFERENCES ANSWER(answer_id),
+                                           argument VARCHAR(500),
                                            PRIMARY KEY(quess_id)
 );
 
