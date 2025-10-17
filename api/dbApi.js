@@ -78,6 +78,39 @@ exports.deleteGame = async (req, res) => {
     transaction.end();
 };
 
+exports.getGamePlayersByGameIdAndJudgeId = async (req, res) => {
+    const gameId = req?.game_id;
+    const judgeId = req?.judge_id;
+    try {
+        const getGamePlayersSQL = fs.readFileSync(
+            path.resolve(__dirname, '../sql/getGamePlayersByGameIdAndJudgeId.sql'),
+            'utf8',
+        );
+        const playerCombinationResult = await database.query(getGamePlayersSQL, [
+            Number.parseInt(gameId),
+            Number.parseInt(judgeId),
+        ]);
+        if (playerCombinationResult && playerCombinationResult.rowCount > 0) {
+            const player = playerCombinationResult.rows[0];
+            res.json(player);
+        } else {
+            res.json({
+                message: messageKeys.PLAYER_NOT_EXISTS,
+            });
+        }
+    } catch (err) {
+        logger.error(
+            'Error reading player with gameId and judgeId : ' +
+                gameId +
+                ' ' +
+                judgeId +
+                ' : ' +
+                err,
+        );
+        throw err;
+    }
+};
+
 exports.savePlayer = async (player) => {
     try {
         if (player.player_id) {
