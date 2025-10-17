@@ -155,6 +155,14 @@ const getJudgeQuestions = async (req, res) => {
     }
 };
 
+const getQuestionById = async (questionId) => {
+    const question = await execute('getQuestion.sql', [questionId]);
+    if (!question[0]) {
+        return null;
+    }
+    return question[0];
+};
+
 module.exports = {
     get,
     getByCode,
@@ -165,4 +173,5 @@ module.exports = {
     getQuestionByIdAndGameId,
     getAIAnswerForQuestion,
     getJudgeQuestions,
+    getQuestionById,
 };
