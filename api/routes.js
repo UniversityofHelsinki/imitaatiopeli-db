@@ -239,6 +239,17 @@ module.exports = (router) => {
         res.json(result);
     });
 
+    router.get('/games/:id/playroomPlayerPairs', async (req, res) => {
+        const { id } = req.params;
+        try {
+            const players = await execute('getJudgePlayerPairsOfGame.sql', [id]);
+            res.json(players);
+        } catch (error) {
+            logger.error('Error fetching player pairs for game:', error);
+            res.status(500).json({ error: 'Failed to fetch player pairs' });
+        }
+    });
+
     router.post('/guess/save', async (req, res) => {
         const { body } = req;
 
