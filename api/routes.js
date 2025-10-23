@@ -275,4 +275,20 @@ module.exports = (router) => {
         });
         res.json(result);
     });
+
+    router.get('/judge/summary/:judgeId/:gameId', async (req, res) => {
+        try {
+            const { judgeId, gameId } = req.params;
+
+            const result = await execute('getJudgeQuestionsAnswersGuessesByGameId.sql', [judgeId, gameId]);
+
+            if (!result) {
+                return res.status(404).json({ error: 'No judge summary found' });
+            }
+            res.json(result);
+        } catch (error) {
+            logger.error('Error fetching judge summary:', error);
+            res.status(500).json({ error: 'Failed to fetch judge summary' });
+        }
+    });
 };
