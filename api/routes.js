@@ -291,4 +291,27 @@ module.exports = (router) => {
             res.status(500).json({ error: 'Failed to fetch judge summary' });
         }
     });
+
+    router.post('/judge/finalGuess', async (req, res) => {
+        try {
+            const { gameId, judgeId, guessedPretenderId, confidence, argument } = req.body;
+
+            const result = await execute('insertFinalGuess.sql', [
+                gameId,
+                judgeId,
+                guessedPretenderId,
+                confidence,
+                argument
+            ]);
+
+            if (!result) {
+                res.status(500).json({ error: 'Failed to save final guess' });
+            }
+            return res.json(result);
+
+        } catch (error) {
+            logger.error('Error saving final judge guess:', error);
+            res.status(500).json({ error: 'Failed to save final guess' });
+        }
+    });
 };
