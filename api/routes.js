@@ -163,7 +163,10 @@ module.exports = (router) => {
                 },
                 g,
             );
-            res.json(player);
+            res.json({
+                ...player,
+                theme_description: g.configuration[0]?.theme_description,
+            });
         }
     });
 
@@ -280,7 +283,10 @@ module.exports = (router) => {
         try {
             const { judgeId, gameId } = req.params;
 
-            const result = await execute('getJudgeQuestionsAnswersGuessesByGameId.sql', [judgeId, gameId]);
+            const result = await execute('getJudgeQuestionsAnswersGuessesByGameId.sql', [
+                judgeId,
+                gameId,
+            ]);
 
             if (!result) {
                 return res.status(404).json({ error: 'No judge summary found' });
