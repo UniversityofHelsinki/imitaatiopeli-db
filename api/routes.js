@@ -292,26 +292,28 @@ module.exports = (router) => {
         }
     });
 
-    router.post('/judge/finalGuess', async (req, res) => {
+    router.post('/judge/finalGuess/:gameId/:judgeId', async (req, res) => {
         try {
-            const { gameId, judgeId, guessedPretenderId, confidence, argument } = req.body;
+            const { gameId, judgeId } = req.params;
+            const { guessedPlayerId, confidence, argument } = req.body;
 
             const result = await execute('insertFinalGuess.sql', [
                 gameId,
                 judgeId,
-                guessedPretenderId,
+                guessedPlayerId,
                 confidence,
                 argument
             ]);
 
             if (!result) {
-                res.status(500).json({ error: 'Failed to save final guess' });
+                return res.status(500).json({ error: 'Failed to save final guess' });
             }
             return res.json(result);
 
         } catch (error) {
             logger.error('Error saving final judge guess:', error);
-            res.status(500).json({ error: 'Failed to save final guess' });
+            return res.status(500).json({ error: 'Failed to save final guess' });
         }
     });
+
 };
