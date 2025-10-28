@@ -143,3 +143,20 @@ SELECT 'ai_player', TRUE, NOW()
 WHERE NOT EXISTS (
     SELECT 1 FROM PLAYER WHERE nickname = 'ai_player'
 );
+
+CREATE TABLE IF NOT EXISTS JUDGE_FINAL_GUESS (
+    final_guess_id SERIAL,
+    game_id INTEGER REFERENCES GAME(game_id),
+    judge_id INTEGER REFERENCES PLAYER(player_id),
+    guessed_player_id INTEGER REFERENCES PLAYER(player_id),
+    confidence INTEGER,
+    was_correct BOOLEAN,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    argument VARCHAR(500),
+    PRIMARY KEY(final_guess_id),
+    UNIQUE(game_id, judge_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_final_judge_guess_game_id ON judge_final_guess(game_id);
+CREATE INDEX IF NOT EXISTS idx_final_judge_guess_judge_id ON judge_final_guess(judge_id);
+

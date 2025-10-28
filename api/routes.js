@@ -163,7 +163,10 @@ module.exports = (router) => {
                 },
                 g,
             );
-            res.json(player);
+            res.json({
+                ...player,
+                theme_description: g.configuration[0]?.theme_description,
+            });
         }
     });
 
@@ -280,7 +283,10 @@ module.exports = (router) => {
         try {
             const { judgeId, gameId } = req.params;
 
-            const result = await execute('getJudgeQuestionsAnswersGuessesByGameId.sql', [judgeId, gameId]);
+            const result = await execute('getJudgeQuestionsAnswersGuessesByGameId.sql', [
+                judgeId,
+                gameId,
+            ]);
 
             if (!result) {
                 return res.status(404).json({ error: 'No judge summary found' });
@@ -291,4 +297,29 @@ module.exports = (router) => {
             res.status(500).json({ error: 'Failed to fetch judge summary' });
         }
     });
+
+    router.post('/judge/finalGuess/:gameId/:judgeId', async (req, res) => {
+        try {
+            const { gameId, judgeId } = req.params;
+            const { guessedPlayerId, confidence, argument } = req.body;
+
+            const result = await execute('insertFinalGuess.sql', [
+                gameId,
+                judgeId,
+                guessedPlayerId,
+                confidence,
+                argument
+            ]);
+
+            if (!result) {
+                return res.status(500).json({ error: 'Failed to save final guess' });
+            }
+            return res.json(result);
+
+        } catch (error) {
+            logger.error('Error saving final judge guess:', error);
+            return res.status(500).json({ error: 'Failed to save final guess' });
+        }
+    });
+
 };
