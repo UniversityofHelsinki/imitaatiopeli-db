@@ -327,9 +327,18 @@ module.exports = (router) => {
             id,
             playerId,
         ]);
-        if (!result) {
-            return res.status(404).json({ error: 'No unanswered question found' });
+        if (!result || result.length === 0) {
+            return res.status(200).json({});
         }
         res.json(result[0]);
+    });
+
+    router.get('/game/:id/player/:playerId/answersForRatingForm', async (req, res) => {
+        const { id, playerId } = req.params;
+        const result = await execute('getAnswersForRatingForm.sql', [playerId, id]);
+        if (!result) {
+            return res.status(200).json({ error: 'No initial answers found' });
+        }
+        res.json(result);
     });
 };
