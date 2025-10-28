@@ -335,7 +335,7 @@ module.exports = (router) => {
 
     router.get('/game/:id/player/:playerId/answersForRatingForm', async (req, res) => {
         const { id, playerId } = req.params;
-        const result = await execute('getAnswersForRatingForm.sql', [playerId, id]);
+        const result = await execute('getAnswersForRatingForm.sql', [id, playerId]);
         if (!result) {
             return res.status(200).json({ error: 'No initial answers found' });
         }
