@@ -308,18 +308,28 @@ module.exports = (router) => {
                 judgeId,
                 guessedPlayerId,
                 confidence,
-                argument
+                argument,
             ]);
 
             if (!result) {
                 return res.status(500).json({ error: 'Failed to save final guess' });
             }
             return res.json(result);
-
         } catch (error) {
             logger.error('Error saving final judge guess:', error);
             return res.status(500).json({ error: 'Failed to save final guess' });
         }
     });
 
+    router.get('/game/:id/player/:playerId/unansweredQuestion', async (req, res) => {
+        const { id, playerId } = req.params;
+        const result = await execute('getUnansweredQuestionByGameIdAndPlayerId.sql', [
+            id,
+            playerId,
+        ]);
+        if (!result) {
+            return res.status(404).json({ error: 'No unanswered question found' });
+        }
+        res.json(result[0]);
+    });
 };
