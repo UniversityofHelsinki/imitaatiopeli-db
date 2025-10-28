@@ -323,10 +323,14 @@ module.exports = (router) => {
 
     router.get('/game/:id/player/:playerId/unansweredQuestion', async (req, res) => {
         const { id, playerId } = req.params;
-        const result = await execute('getUnansweredQuestionByGameIdAndPlayerId.sql', [
-            id,
-            playerId,
-        ]);
+        const gamePairsByPlayerId = await execute('getGamePairs.sql', [id, playerId]);
+
+        const match = gamePairsByPlayerId.find(
+            (item) => Number(item.player_id) === Number(playerId),
+        );
+        const judgeId = match ? match.judge_id : null;
+
+        const result = await execute('getUnansweredQuestionByGameIdAndPlayerId.sql', [id, judgeId]);
         if (!result || result.length === 0) {
             return res.status(200).json({});
         }
