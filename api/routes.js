@@ -308,18 +308,41 @@ module.exports = (router) => {
                 judgeId,
                 guessedPlayerId,
                 confidence,
-                argument
+                argument,
             ]);
 
             if (!result) {
                 return res.status(500).json({ error: 'Failed to save final guess' });
             }
             return res.json(result);
-
         } catch (error) {
             logger.error('Error saving final judge guess:', error);
             return res.status(500).json({ error: 'Failed to save final guess' });
         }
     });
 
+    router.get('/game/:id/player/:playerId/unansweredQuestion', async (req, res) => {
+        const { id, playerId } = req.params;
+        const gamePairsByPlayerId = await execute('getGamePairs.sql', [id, playerId]);
+
+        const match = gamePairsByPlayerId.find(
+            (item) => Number(item.player_id) === Number(playerId),
+        );
+        const judgeId = match ? match.judge_id : null;
+
+        const result = await execute('getUnansweredQuestionByGameIdAndPlayerId.sql', [id, judgeId]);
+        if (!result || result.length === 0) {
+            return res.status(200).json({});
+        }
+        res.json(result[0]);
+    });
+
+    router.get('/game/:id/player/:playerId/answersForRatingForm', async (req, res) => {
+        const { id, playerId } = req.params;
+        const result = await execute('getAnswersForRatingForm.sql', [id, playerId]);
+        if (!result) {
+            return res.status(200).json({ error: 'No initial answers found' });
+        }
+        res.json(result);
+    });
 };
