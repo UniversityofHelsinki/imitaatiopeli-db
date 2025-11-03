@@ -46,6 +46,7 @@ module.exports = (router) => {
             body.configuration.research_description,
             body.configuration.language_model,
             body.configuration.model_temperature,
+            body.configuration.answer_randomization,
         ]);
 
         const game = await execute('createGame.sql', [
@@ -77,6 +78,7 @@ module.exports = (router) => {
             body.configuration.language_model,
             body.configuration.model_temperature,
             body.configuration.config_id,
+            body.configuration.answer_randomization,
         ]);
 
         if (queryResults?.length === 1) {

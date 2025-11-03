@@ -35,6 +35,7 @@ const TEST_DATA = {
         research_description: 'test research',
         language_model: 2,
         model_temperature: 0.5,
+        answer_randomization: false,
     },
     GAME_PLAYERS: {
         game_id: 1,
