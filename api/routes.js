@@ -339,10 +339,26 @@ module.exports = (router) => {
 
     router.get('/game/:id/player/:playerId/answersForRatingForm', async (req, res) => {
         const { id, playerId } = req.params;
+        const questionCountResult = await execute('getQuestionCount.sql', [playerId, id]);
         const result = await execute('getAnswersForRatingForm.sql', [id, playerId]);
-        if (!result) {
+        const questionCount = Number(questionCountResult?.[0]?.count ?? 0);
+        const updatedResult = result.map((item) => ({
+            ...item,
+            questionCount,
+        }));
+        if (!updatedResult) {
             return res.status(200).json({ error: 'No initial answers found' });
         }
-        res.json(result);
+        res.json(updatedResult);
+    });
+
+    router.get('/game/:gameId/judge/:judgeId/questionCount', async (req, res) => {
+        const { gameId, judgeId } = req.params;
+        const result = await execute('getQuestionCount.sql', [judgeId, gameId]);
+        const questionCount = Number(result?.[0]?.count ?? 0);
+        if (!questionCount) {
+            return res.status(404).json({ error: 'No question count found' });
+        }
+        res.json(questionCount);
     });
 };
