@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS ANSWER (
                                       answer_id SERIAL,
                                       question_id INTEGER REFERENCES QUESTION(question_id),
                                       player_id integer,
-                                      answer_text VARCHAR(255),
+                                      answer_text VARCHAR(500),
                                       answer_order integer,
                                       created TIMESTAMP,
                                       is_pretender BOOLEAN,
