@@ -50,7 +50,8 @@ module.exports = (router) => {
 
         const game = await execute('createGame.sql', [
             configuration[0].config_id,
-            crypto.randomUUID(),
+            body.gameCode,
+            body.userId
         ]);
 
         if (game?.length === 1) {
