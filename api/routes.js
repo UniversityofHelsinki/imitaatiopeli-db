@@ -166,6 +166,7 @@ module.exports = (router) => {
             res.json({
                 ...player,
                 theme_description: g.configuration[0]?.theme_description,
+                language_used: g.configuration[0]?.language_used,
             });
         }
     });
