@@ -362,4 +362,13 @@ module.exports = (router) => {
         }
         res.json(questionCount);
     });
+
+    router.get(`/languageSuffix/:languageCode`, async (req, res) => {
+        const { languageCode } = req.params;
+        const result = await execute('getPromptSuffixByLanguage.sql', [languageCode]);
+        if (!result) {
+            return res.status(404).json({ error: 'No language suffix found' });
+        }
+        res.json(result[0]);
+    });
 };
