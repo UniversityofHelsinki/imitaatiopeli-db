@@ -299,16 +299,15 @@ module.exports = (router) => {
         }
     });
 
-    router.post('/judge/finalGuess/:gameId/:judgeId', async (req, res) => {
+    router.post('/judge/finalGuess', async (req, res) => {
         try {
-            const { gameId, judgeId } = req.params;
-            const { guessedPlayerId, confidence, argument } = req.body;
+            const { gameId, judgeId, confidence, is_pretender, argument } = req.body;
 
             const result = await execute('insertFinalGuess.sql', [
                 gameId,
                 judgeId,
-                guessedPlayerId,
                 confidence,
+                is_pretender,
                 argument,
             ]);
 
