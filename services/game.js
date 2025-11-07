@@ -58,9 +58,11 @@ const join = async (player, game) => {
     };
 };
 
-const all = async (user) => {
-    const games = await execute('allGames.sql');
-    const configurations = await execute('allConfigurations.sql');
+const all = async (eppn) => {
+    const games = await execute('getUserGames.sql', [eppn]);
+    if (!games || games.length === 0) {
+        return [];
+    }
 
     const gamesByConfiguration = {};
 
@@ -72,9 +74,17 @@ const all = async (user) => {
         };
     }
 
-    return configurations.map((configuration) => ({
-        ...gamesByConfiguration[configuration.config_id],
-        configuration,
+    return games.map(game => ({
+        ...gamesByConfiguration[game.config_id],
+        configuration: {
+            config_id: game.config_id,
+            game_name: game.game_name,
+            theme_description: game.theme_description,
+            language_model: game.language_model,
+            language_used: game.language_used,
+            is_research_game: game.is_research_game,
+            research_description: game.research_description
+        }
     }));
 };
 

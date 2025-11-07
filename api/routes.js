@@ -116,9 +116,8 @@ module.exports = (router) => {
     });
 
     router.get('/games', async (req, res) => {
-        const { params } = req;
-
-        res.json(await game.all(params.user));
+        const eppn = req.headers['eppn']
+        res.json(await game.all(eppn));
     });
 
     router.get('/languageModels', async (req, res) => {
