@@ -363,7 +363,7 @@ module.exports = (router) => {
         res.json(questionCount);
     });
 
-    router.get(`/languageSuffix/:languageCode`, async (req, res) => {
+    router.get('/languageSuffix/:languageCode', async (req, res) => {
         const { languageCode } = req.params;
         const result = await execute('getPromptSuffixByLanguage.sql', [languageCode]);
         if (!result) {
