@@ -159,6 +159,17 @@ CREATE TABLE IF NOT EXISTS JUDGE_FINAL_GUESS (
     UNIQUE(game_id, judge_id)
 );
 
+CREATE TABLE IF NOT EXISTS PROMPT_SUFFIX_TEMPLATE (
+    language_code VARCHAR(10) PRIMARY KEY,
+    suffix_template TEXT NOT NULL
+);
+
+INSERT INTO PROMPT_SUFFIX_TEMPLATE (language_code, suffix_template) VALUES
+    ('fi', 'vastauksen tulisi olla noin {length} merkkiä pitkä eikä ylittää koskaan 500 merkkiä. Vastaa suomen kielellä.'),
+    ('en', 'the answer should be around {length} characters and never exceed 500 characters. Answer in English language.'),
+    ('swe', 'svaret bör vara cirka {length} tecken långt och får aldrig överstiga 50 tecken. Svara på svenska.')
+    ON CONFLICT (language_code) DO NOTHING;
+
 CREATE INDEX IF NOT EXISTS idx_final_judge_guess_game_id ON judge_final_guess(game_id);
 CREATE INDEX IF NOT EXISTS idx_final_judge_guess_judge_id ON judge_final_guess(judge_id);
 

@@ -166,6 +166,7 @@ module.exports = (router) => {
             res.json({
                 ...player,
                 theme_description: g.configuration[0]?.theme_description,
+                language_used: g.configuration[0]?.language_used,
             });
         }
     });
@@ -360,5 +361,14 @@ module.exports = (router) => {
             return res.status(404).json({ error: 'No question count found' });
         }
         res.json(questionCount);
+    });
+
+    router.get('/languageSuffix/:languageCode', async (req, res) => {
+        const { languageCode } = req.params;
+        const result = await execute('getPromptSuffixByLanguage.sql', [languageCode]);
+        if (!result) {
+            return res.status(404).json({ error: 'No language suffix found' });
+        }
+        res.json(result[0]);
     });
 };
