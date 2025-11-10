@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS GAME (
 
 CREATE TABLE IF NOT EXISTS GAME_ORGANIZER (
     id SERIAL,
-    game_id INTEGER REFERENCES GAME(game_id) ON DELETE CASCADE NOT NULL,
+    game_id integer REFERENCES GAME(game_id),
     user_id VARCHAR(255) NOT NULL,
     created_at TIMESTAMP,
     PRIMARY KEY(game_id, user_id)

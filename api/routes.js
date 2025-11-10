@@ -52,7 +52,7 @@ module.exports = (router) => {
         const game = await execute('createGame.sql', [
             configuration[0].config_id,
             body.gameCode,
-            body.userId
+            body.userId,
         ]);
 
         if (game?.length === 1) {
@@ -118,7 +118,7 @@ module.exports = (router) => {
     });
 
     router.get('/games', async (req, res) => {
-        const eppn = req.headers['eppn']
+        const { eppn } = req.params;
         res.json(await game.all(eppn));
     });
 
