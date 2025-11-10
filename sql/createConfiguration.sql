@@ -8,7 +8,9 @@ INSERT INTO GAME_CONFIGURATION
     IS_RESEARCH_GAME,
     RESEARCH_DESCRIPTION,
     LANGUAGE_MODEL,
-    MODEL_TEMPERATURE
+    MODEL_TEMPERATURE,
+    AI_ANSWER_POSITION,
+    ANSWER_RANDOMIZATION
 )
 VALUES
     (
@@ -20,5 +22,7 @@ VALUES
         $6,
         $7,
         $8,
-        $9
+        $9,
+        floor(random() * 2 + 1)::int,
+        $10
     ) RETURNING *;

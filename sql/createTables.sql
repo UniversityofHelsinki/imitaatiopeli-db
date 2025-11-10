@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS GAME_CONFIGURATION (
                                                   instructions_for_players VARCHAR(4000),
                                                   is_research_game BOOLEAN,
                                                   research_description VARCHAR(4000),
+                                                  ai_answer_position integer,
                                                   PRIMARY KEY(config_id)
 );
 
@@ -89,7 +90,7 @@ CREATE TABLE IF NOT EXISTS ANSWER (
                                       answer_id SERIAL,
                                       question_id INTEGER REFERENCES QUESTION(question_id),
                                       player_id integer,
-                                      answer_text VARCHAR(255),
+                                      answer_text VARCHAR(500),
                                       answer_order integer,
                                       created TIMESTAMP,
                                       is_pretender BOOLEAN,
@@ -156,6 +157,17 @@ CREATE TABLE IF NOT EXISTS JUDGE_FINAL_GUESS (
     PRIMARY KEY(final_guess_id),
     UNIQUE(game_id, judge_id)
 );
+
+CREATE TABLE IF NOT EXISTS PROMPT_SUFFIX_TEMPLATE (
+    language_code VARCHAR(10) PRIMARY KEY,
+    suffix_template TEXT NOT NULL
+);
+
+INSERT INTO PROMPT_SUFFIX_TEMPLATE (language_code, suffix_template) VALUES
+    ('fi', 'vastauksen tulisi olla noin {length} merkkiä pitkä eikä ylittää koskaan 500 merkkiä. Vastaa suomen kielellä.'),
+    ('en', 'the answer should be around {length} characters and never exceed 500 characters. Answer in English language.'),
+    ('swe', 'svaret bör vara cirka {length} tecken långt och får aldrig överstiga 50 tecken. Svara på svenska.')
+    ON CONFLICT (language_code) DO NOTHING;
 
 CREATE INDEX IF NOT EXISTS idx_final_judge_guess_game_id ON judge_final_guess(game_id);
 CREATE INDEX IF NOT EXISTS idx_final_judge_guess_judge_id ON judge_final_guess(judge_id);
