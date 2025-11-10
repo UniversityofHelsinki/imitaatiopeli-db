@@ -117,7 +117,7 @@ module.exports = (router) => {
         return res.status(200).end();
     });
 
-    router.get('/games', async (req, res) => {
+    router.get('/games/:eppn', async (req, res) => {
         const { eppn } = req.params;
         res.json(await game.all(eppn));
     });
