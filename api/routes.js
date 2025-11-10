@@ -46,6 +46,7 @@ module.exports = (router) => {
             body.configuration.research_description,
             body.configuration.language_model,
             body.configuration.model_temperature,
+            body.configuration.answer_randomization,
         ]);
 
         const game = await execute('createGame.sql', [
@@ -78,6 +79,7 @@ module.exports = (router) => {
             body.configuration.language_model,
             body.configuration.model_temperature,
             body.configuration.config_id,
+            body.configuration.answer_randomization,
         ]);
 
         if (queryResults?.length === 1) {
@@ -299,16 +301,15 @@ module.exports = (router) => {
         }
     });
 
-    router.post('/judge/finalGuess/:gameId/:judgeId', async (req, res) => {
+    router.post('/judge/finalGuess', async (req, res) => {
         try {
-            const { gameId, judgeId } = req.params;
-            const { guessedPlayerId, confidence, argument } = req.body;
+            const { gameId, judgeId, confidence, is_pretender, argument } = req.body;
 
             const result = await execute('insertFinalGuess.sql', [
                 gameId,
                 judgeId,
-                guessedPlayerId,
                 confidence,
+                is_pretender,
                 argument,
             ]);
 
