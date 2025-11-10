@@ -51,7 +51,8 @@ module.exports = (router) => {
 
         const game = await execute('createGame.sql', [
             configuration[0].config_id,
-            crypto.randomUUID(),
+            body.gameCode,
+            body.userId,
         ]);
 
         if (game?.length === 1) {
@@ -116,10 +117,9 @@ module.exports = (router) => {
         return res.status(200).end();
     });
 
-    router.get('/games', async (req, res) => {
-        const { params } = req;
-
-        res.json(await game.all(params.user));
+    router.get('/games/:eppn', async (req, res) => {
+        const { eppn } = req.params;
+        res.json(await game.all(eppn));
     });
 
     router.get('/languageModels', async (req, res) => {
