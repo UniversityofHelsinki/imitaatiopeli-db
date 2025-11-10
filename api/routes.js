@@ -372,4 +372,13 @@ module.exports = (router) => {
         }
         res.json(result[0]);
     });
+
+    router.get('/game/:id/gameDataToExcel', async (req, res) => {
+        const { id } = req.params;
+        const result = await execute('gameDataToExcel.sql', [id]);
+        if (!result) {
+            return res.status(404).json({ error: 'No excel found' });
+        }
+        res.json(result);
+    });
 };
