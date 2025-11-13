@@ -382,14 +382,11 @@ module.exports = (router) => {
         res.json(result);
     });
 
-    router.get('/games/:gameId/summary', async (req, res) => {
+    router.get('/games/:gameId/:eppn/summary', async (req, res) => {
         try {
-            const { gameId } = req.params;
-            const userId = req.user.eppn;
-            console.log('routes user eppn', userId);
-            console.log('routes gameId', gameId);
+            const { gameId, eppn } = req.params;
 
-            const result = await execute('getAdminGameSummary.sql', [gameId, userId]);
+            const result = await execute('getAdminGameSummary.sql', [gameId, eppn]);
             if (!result) {
                 return res.status(404).json({ error: 'No game summary found' });
             }

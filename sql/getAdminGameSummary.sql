@@ -1,23 +1,34 @@
 SELECT
+    gp.game_id,
     p.player_id,
     p.nickname,
-    COUNT(DISTINCT q.question_id) as questions_sent,
-    COUNT(DISTINCT CASE WHEN jg.was_correct = true THEN jg.quess_id END) as correct_guesses,
-    ARRAY_AGG(jg.confidence ORDER BY jg.created) as confidence_values
-FROM
-    GAME_PLAYERS gp
-        JOIN PLAYER p ON gp.player_id = p.player_id
-        LEFT JOIN QUESTION q ON q.game_id = gp.game_id AND q.judge_id = p.player_id
-        LEFT JOIN JUDGE_GUESS jg ON jg.judge_id = p.player_id
-        AND jg.question_id IN (
-            SELECT q2.question_id
-            FROM QUESTION q2
-            WHERE q2.game_id = $1
-        )
-        JOIN GAME_ORGANIZER go ON go.game_id = $1 AND go.user_id = $2
-WHERE
-    gp.game_id = $1
-GROUP BY
-    p.player_id, p.nickname
-ORDER BY
-    p.player_id;
+    COALESCE(qc.question_count, 0)  AS questions_asked,
+    COALESCE(cc.correct_guesses, 0) AS correct_guesses
+FROM game_players gp
+         JOIN player p
+              ON p.player_id = gp.player_id
+         LEFT JOIN (
+    SELECT
+        q.judge_id,
+        COUNT(*) AS question_count
+    FROM question q
+    WHERE q.game_id = $1
+    GROUP BY q.judge_id
+) qc
+                   ON qc.judge_id = p.player_id
+         LEFT JOIN (
+    SELECT
+        jg.judge_id,
+        COUNT(*) AS correct_guesses
+    FROM judge_guess jg
+             JOIN question q ON q.question_id = jg.question_id
+    WHERE jg.was_correct = TRUE
+      AND q.game_id = $1
+    GROUP BY jg.judge_id
+) cc
+                   ON cc.judge_id = p.player_id
+         JOIN game_organizer go
+              ON go.game_id = gp.game_id
+                  AND go.user_id::text = $2
+WHERE gp.game_id = $1
+ORDER BY p.player_id;
