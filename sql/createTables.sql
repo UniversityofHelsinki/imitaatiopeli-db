@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS CUSTOM_BACKGROUND_INFO (
 CREATE TABLE IF NOT EXISTS QUESTION (
                                         question_id SERIAL,
                                         game_id integer REFERENCES GAME(game_id),
-                                        question_text VARCHAR(255),
+                                        question_text VARCHAR(500),
                                         created TIMESTAMP,
                                         judge_id INTEGER REFERENCES PLAYER(player_id),
                                         PRIMARY KEY(question_id)
