@@ -3,7 +3,9 @@ SELECT
     p.player_id,
     p.nickname,
     COALESCE(qc.question_count, 0)  AS questions_asked,
-    COALESCE(cc.correct_guesses, 0) AS correct_guesses
+    COALESCE(cc.correct_guesses, 0) AS correct_guesses,
+    COALESCE(cg.guesses_sent, 0)    AS guesses_sent,
+    COALESCE(cg.confidence_values, '{}'::int[]) AS confidence_values
 FROM game_players gp
          JOIN player p
               ON p.player_id = gp.player_id
@@ -27,6 +29,17 @@ FROM game_players gp
     GROUP BY jg.judge_id
 ) cc
                    ON cc.judge_id = p.player_id
+         LEFT JOIN (
+    SELECT
+        jg.judge_id,
+        COUNT(*) AS guesses_sent,
+        ARRAY_AGG(jg.confidence) AS confidence_values
+    FROM judge_guess jg
+             JOIN question q ON q.question_id = jg.question_id
+    WHERE q.game_id = $1
+    GROUP BY jg.judge_id
+) cg
+                   ON cg.judge_id = p.player_id
          JOIN game_organizer go
               ON go.game_id = gp.game_id
                   AND go.user_id::text = $2
