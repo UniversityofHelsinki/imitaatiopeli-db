@@ -111,17 +111,6 @@ CREATE TABLE IF NOT EXISTS JUDGE_GUESS (
                                            PRIMARY KEY(quess_id)
 );
 
-CREATE TABLE IF NOT EXISTS GAME_SUMMARY (
-                                            summary_id SERIAL,
-                                            game_id INTEGER REFERENCES GAME(game_id),
-                                            total_questions integer,
-                                            correct_questions integer,
-                                            accuracy_percent float,
-                                            final_guess integer,
-                                            final_guess_correct BOOLEAN,
-                                            PRIMARY KEY(summary_id)
-);
-
 CREATE TABLE IF NOT EXISTS GAME_PLAYERS (
     game_id INTEGER NOT NULL,
     player_id INTEGER NOT NULL,
