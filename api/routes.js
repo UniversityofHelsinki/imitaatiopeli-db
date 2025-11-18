@@ -381,4 +381,19 @@ module.exports = (router) => {
         }
         res.json(result);
     });
+
+    router.get('/games/:gameId/:eppn/summary', async (req, res) => {
+        try {
+            const { gameId, eppn } = req.params;
+
+            const result = await execute('getAdminGameSummary.sql', [gameId, eppn]);
+            if (!result) {
+                return res.status(404).json({ error: 'No game summary found' });
+            }
+            res.json(result);
+        } catch (error) {
+            console.error('Error fetching game summary:', error);
+            return res.status(500).json({ error: 'Failed to fetch game summary' });
+        }
+    });
 };
