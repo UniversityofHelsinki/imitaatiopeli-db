@@ -354,6 +354,21 @@ module.exports = (router) => {
         res.json(updatedResult);
     });
 
+    router.get('/game/:id/player/:playerId/notAnswersForRatingForm', async (req, res) => {
+        const { id, playerId } = req.params;
+        const questionCountResult = await execute('getQuestionCount.sql', [playerId, id]);
+        const result = await execute('getNotAnswersForRatingForm.sql', [id, playerId]);
+        const questionCount = Number(questionCountResult?.[0]?.count ?? 0);
+        const updatedResult = result.map((item) => ({
+            ...item,
+            questionCount,
+        }));
+        if (!updatedResult) {
+            return res.status(200).json({ error: 'No initial answers for rating found' });
+        }
+        res.json(updatedResult);
+    });
+
     router.get('/game/:gameId/judge/:judgeId/questionCount', async (req, res) => {
         const { gameId, judgeId } = req.params;
         const result = await execute('getQuestionCount.sql', [judgeId, gameId]);
@@ -394,5 +409,20 @@ module.exports = (router) => {
             promptSuffixTemplate: promptSuffixTemplate,
             languageModel: languageModel?.[0],
         });
+    });
+
+    router.get('/games/:gameId/:eppn/summary', async (req, res) => {
+        try {
+            const { gameId, eppn } = req.params;
+
+            const result = await execute('getAdminGameSummary.sql', [gameId, eppn]);
+            if (!result) {
+                return res.status(404).json({ error: 'No game summary found' });
+            }
+            res.json(result);
+        } catch (error) {
+            console.error('Error fetching game summary:', error);
+            return res.status(500).json({ error: 'Failed to fetch game summary' });
+        }
     });
 };
