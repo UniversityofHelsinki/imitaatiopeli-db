@@ -394,7 +394,21 @@ module.exports = (router) => {
         if (!result) {
             return res.status(404).json({ error: 'No excel found' });
         }
-        res.json(result);
+
+        const configuration = await execute('gameConfiguration.sql', [id]);
+        const promptSuffixTemplate = await execute('getPromptSuffixByLanguage.sql', [
+            configuration[0]?.language_used,
+        ]);
+        const languageModel = await execute('getLanguageModelById.sql', [
+            configuration[0]?.language_model,
+        ]);
+
+        res.json({
+            gameData: result,
+            gameConfiguration: configuration?.[0],
+            promptSuffixTemplate: promptSuffixTemplate,
+            languageModel: languageModel?.[0],
+        });
     });
 
     router.get('/games/:gameId/:eppn/summary', async (req, res) => {
