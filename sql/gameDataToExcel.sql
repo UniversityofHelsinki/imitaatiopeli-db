@@ -1,5 +1,6 @@
 SELECT * FROM (
                   SELECT
+                      pj.nickname AS player_name,
                       q.judge_id AS player,
                       CAST(ROW_NUMBER() OVER (PARTITION BY q.judge_id ORDER BY q.created) AS TEXT) AS sequence,
                       q.question_text AS question,
@@ -13,6 +14,7 @@ SELECT * FROM (
                       NULL AS final_confidence
                   FROM question q
                            JOIN player_combination pc ON pc.game_id = q.game_id AND pc.judge_id = q.judge_id
+                           JOIN player pj ON pj.player_id = q.judge_id
                            JOIN player pp ON pp.player_id = pc.player_id AND pp.is_pretender = FALSE
                            LEFT JOIN answer a_pretender ON a_pretender.question_id = q.question_id AND a_pretender.is_pretender = TRUE
                            LEFT JOIN answer a_non ON a_non.question_id = q.question_id AND a_non.player_id = pp.player_id
@@ -22,6 +24,7 @@ SELECT * FROM (
                   UNION ALL
 
                   SELECT
+                      pj.nickname AS player_name,
                       jfg.judge_id AS player,
                       'Final' AS sequence,
                       NULL AS question,
@@ -34,7 +37,10 @@ SELECT * FROM (
                       CASE WHEN jfg.was_correct THEN 1 ELSE 0 END AS final_correct,
                       jfg.confidence AS final_confidence
                   FROM judge_final_guess jfg
-                  WHERE jfg.game_id = $1
+                           JOIN player_combination pc ON pc.game_id = jfg.game_id AND pc.judge_id = jfg.judge_id
+                           JOIN player pj ON pj.player_id = jfg.judge_id
+                           JOIN player pp ON pp.player_id = pc.player_id AND pp.is_pretender = FALSE
+                  WHERE jfg.game_id = $2
               ) AS game_data
 ORDER BY player,
          CASE WHEN sequence = 'Final' THEN '999' ELSE sequence END;
