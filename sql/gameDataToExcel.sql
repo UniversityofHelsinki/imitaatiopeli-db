@@ -40,7 +40,7 @@ SELECT * FROM (
                            JOIN player_combination pc ON pc.game_id = jfg.game_id AND pc.judge_id = jfg.judge_id
                            JOIN player pj ON pj.player_id = jfg.judge_id
                            JOIN player pp ON pp.player_id = pc.player_id AND pp.is_pretender = FALSE
-                  WHERE jfg.game_id = $2
+                  WHERE jfg.game_id = $1
               ) AS game_data
 ORDER BY player,
          CASE WHEN sequence = 'Final' THEN '999' ELSE sequence END;
