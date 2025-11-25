@@ -6,7 +6,7 @@ const messageKeys = require('../utils/message-keys');
 
 exports.getPlayerById = async (req, res) => {
     try {
-        const playerId = req.params.playerId;
+        const playerId = req.query.playerId;
         const getPlayerSQL = fs.readFileSync(
             path.resolve(__dirname, '../sql/getPlayerById.sql'),
             'utf8',
@@ -159,39 +159,45 @@ exports.getJudgeSummary = async (req, res) => {
 
         const sqlQuery = fs.readFileSync(
             path.resolve(__dirname, '../sql/getJudgeQuestionsAnswersGuessesByGameId.sql'),
-            'utf8'
+            'utf8',
         );
         const results = await database.query(sqlQuery, [judgeId, gameId]);
 
         const questions = {};
 
-        results.rows.forEach(row => {
+        results.rows.forEach((row) => {
             if (!questions[row.question_id]) {
                 questions[row.question_id] = {
                     question_id: row.question_id,
                     question_text: row.question_text,
                     created: row.created,
                     answers: [],
-                    guesses: []
+                    guesses: [],
                 };
             }
 
-            if (row.answer_id && !questions[row.question_id].answers.some(a => a.answer_id === row.answer_id)) {
+            if (
+                row.answer_id &&
+                !questions[row.question_id].answers.some((a) => a.answer_id === row.answer_id)
+            ) {
                 questions[row.question_id].answers.push({
                     answer_id: row.answer_id,
                     answer_text: row.answer_text,
                     created: row.created,
-                    is_pretender: row.is_pretender
+                    is_pretender: row.is_pretender,
                 });
             }
 
-            if (row.quess_id && !questions[row.question_id].guesses.some(g => g.quess_id === row.quess_id)) {
+            if (
+                row.quess_id &&
+                !questions[row.question_id].guesses.some((g) => g.quess_id === row.quess_id)
+            ) {
                 questions[row.question_id].guesses.push({
                     quess_id: row.quess_id,
                     confidence: row.confidence,
                     was_correct: row.was_correct,
                     created: row.created,
-                    argument: row.argument
+                    argument: row.argument,
                 });
             }
         });
