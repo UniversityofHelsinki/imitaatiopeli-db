@@ -6,7 +6,7 @@ const messageKeys = require('../utils/message-keys');
 
 exports.getPlayerById = async (req, res) => {
     try {
-        const playerId = req.query.playerId;
+        const playerId = req.params.playerId;
         const getPlayerSQL = fs.readFileSync(
             path.resolve(__dirname, '../sql/getPlayerById.sql'),
             'utf8',
