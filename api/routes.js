@@ -14,7 +14,7 @@ module.exports = (router) => {
         res.json({ message: 'Hello, world!' });
     });
 
-    router.get('/getPlayerById', getPlayerById);
+    router.get('/getPlayerById/:playerId', getPlayerById);
     router.get('/getJudgeById/:playerId/:gameId', getJudgeById);
 
     router.get('/getJudgeQuestions/:judgeId/:gameId', getJudgeQuestions);
