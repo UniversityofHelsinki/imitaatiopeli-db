@@ -163,7 +163,7 @@ const SQL = {
       );
     `,
     CREATE_TEMP_GAME_ORGANIZER: `
-      CREATE TABLE IF NOT EXISTS GAME_ORGANIZER (
+      CREATE TEMPORARY TABLE IF NOT EXISTS GAME_ORGANIZER (
           id SERIAL,
           game_id integer REFERENCES GAME(game_id),
           user_id VARCHAR(255) NOT NULL,
