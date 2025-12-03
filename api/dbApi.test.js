@@ -138,6 +138,7 @@ const SQL = {
           answer_text VARCHAR(255),
           answer_order INTEGER,
           created TIMESTAMP,
+          game_id INTEGER,
           is_pretender BOOLEAN,
           PRIMARY KEY(answer_id)
         );
