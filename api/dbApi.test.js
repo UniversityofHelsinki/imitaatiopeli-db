@@ -143,7 +143,7 @@ const SQL = {
         );
     `,
     CREATE_TEMP_JUDGE_FINAL_GUESS_TABLE: `
-      CREATE TABLE IF NOT EXISTS JUDGE_FINAL_GUESS (
+      CREATE TEMPORARY TABLE IF NOT EXISTS JUDGE_FINAL_GUESS (
           final_guess_id SERIAL,
           game_id INTEGER REFERENCES GAME(game_id),
           judge_id INTEGER REFERENCES PLAYER(player_id),
