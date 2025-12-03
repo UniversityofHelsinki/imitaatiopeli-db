@@ -195,7 +195,7 @@ const SQL = {
     SELECT_GAME: 'SELECT * FROM GAME WHERE game_id = $1',
     SELECT_GAME_CONFIGURATION: 'SELECT * FROM GAME_CONFIGURATION WHERE config_id = $1',
     DROP_TEMP_TABLE:
-        'DROP TABLE IF EXISTS answer, question, player, game, game_configuration, game_players;',
+        'DROP TABLE IF EXISTS answer, question, player, judge_guess, judge_final_guess, game_organizer, player_combination, game, game_configuration, game_players;',
 };
 
 // Utility functions
