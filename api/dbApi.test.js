@@ -142,6 +142,19 @@ const SQL = {
           PRIMARY KEY(answer_id)
         );
     `,
+    CREATE_TEMP_JUDGE_FINAL_GUESS_TABLE: `
+      CREATE TABLE IF NOT EXISTS JUDGE_FINAL_GUESS (
+          final_guess_id SERIAL,
+          game_id INTEGER REFERENCES GAME(game_id),
+          judge_id INTEGER REFERENCES PLAYER(player_id),
+          confidence INTEGER,
+          was_correct BOOLEAN,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+          argument VARCHAR(500),
+          PRIMARY KEY(final_guess_id),
+          UNIQUE(game_id, judge_id)
+      );
+    `,
     INSERT_TEST_ANSWER: `
         INSERT INTO ANSWER (answer_id, question_id, player_id, answer_text, answer_order, created, is_pretender)
         VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;`,
@@ -287,6 +300,7 @@ beforeEach(async () => {
     await database.query(SQL.CREATE_TEMP_GAME_PLAYERS_TABLE);
     await database.query(SQL.CREATE_TEMP_QUESTION_TABLE);
     await database.query(SQL.CREATE_TEMP_ANSWER_TABLE);
+    await database.query(SQL.CREATE_TEMP_JUDGE_FINAL_GUESS_TABLE);
 
     // Insert test data
     await createTestPlayer();
