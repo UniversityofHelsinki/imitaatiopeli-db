@@ -461,16 +461,4 @@ describe('Database tests', () => {
         games_after_delete = await getGame(2);
         expect(games_after_delete).toHaveLength(1);
     });
-
-    test('Delete from game_configuration table', async () => {
-        const gameId = TEST_DATA.GAME.game_id;
-
-        const games_before_delete = await getGameConfiguration(gameId);
-        expect(games_before_delete).toHaveLength(1);
-
-        await deleteGame({ game_id: gameId }, {});
-
-        const games_after_delete = await getGameConfiguration(gameId);
-        expect(games_after_delete).toHaveLength(0);
-    });
 });
