@@ -162,6 +162,15 @@ const SQL = {
         player_id INTEGER REFERENCES PLAYER(player_id)
       );
     `,
+    CREATE_TEMP_GAME_ORGANIZER: `
+      CREATE TABLE IF NOT EXISTS GAME_ORGANIZER (
+          id SERIAL,
+          game_id integer REFERENCES GAME(game_id),
+          user_id VARCHAR(255) NOT NULL,
+          created_at TIMESTAMP,
+          PRIMARY KEY(game_id, user_id)
+      );
+    `,
     INSERT_TEST_ANSWER: `
         INSERT INTO ANSWER (answer_id, question_id, player_id, answer_text, answer_order, created, is_pretender)
         VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;`,
@@ -309,6 +318,7 @@ beforeEach(async () => {
     await database.query(SQL.CREATE_TEMP_ANSWER_TABLE);
     await database.query(SQL.CREATE_TEMP_JUDGE_FINAL_GUESS_TABLE);
     await database.query(SQL.CREATE_TEMP_PLAYER_COMBINATION);
+    await database.query(SQL.CREATE_TEMP_GAME_ORGANIZER);
 
     // Insert test data
     await createTestPlayer();
