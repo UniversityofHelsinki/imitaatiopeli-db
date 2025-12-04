@@ -1,1 +1,1 @@
-DELETE FROM game_configuration WHERE config_id = $1;
+DELETE FROM GAME_CONFIGURATION WHERE CONFIG_ID = $1;
