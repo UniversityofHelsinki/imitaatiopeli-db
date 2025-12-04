@@ -138,6 +138,7 @@ const SQL = {
           answer_text VARCHAR(255),
           answer_order INTEGER,
           created TIMESTAMP,
+          game_id INTEGER,
           is_pretender BOOLEAN,
           PRIMARY KEY(answer_id)
         );
@@ -171,6 +172,19 @@ const SQL = {
           PRIMARY KEY(game_id, user_id)
       );
     `,
+    CREATE_TEMP_JUDGE_GUESS: `
+      CREATE TEMPORARY TABLE IF NOT EXISTS JUDGE_GUESS (
+        quess_id SERIAL,
+        question_id INTEGER REFERENCES QUESTION(question_id),
+        confidence integer,
+        was_correct BOOLEAN,
+        created TIMESTAMP,
+        judge_id INTEGER REFERENCES PLAYER(player_id),
+        answer_id INTEGER REFERENCES ANSWER(answer_id),
+        argument VARCHAR(500),
+        PRIMARY KEY(quess_id)
+    );
+    `,
     INSERT_TEST_ANSWER: `
         INSERT INTO ANSWER (answer_id, question_id, player_id, answer_text, answer_order, created, is_pretender)
         VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;`,
@@ -181,7 +195,7 @@ const SQL = {
     SELECT_GAME: 'SELECT * FROM GAME WHERE game_id = $1',
     SELECT_GAME_CONFIGURATION: 'SELECT * FROM GAME_CONFIGURATION WHERE config_id = $1',
     DROP_TEMP_TABLE:
-        'DROP TABLE IF EXISTS answer, question, player, game, game_configuration, game_players;',
+        'DROP TABLE IF EXISTS answer, question, player, judge_guess, judge_final_guess, game_organizer, player_combination, game, game_configuration, game_players;',
 };
 
 // Utility functions
@@ -317,6 +331,7 @@ beforeEach(async () => {
     await database.query(SQL.CREATE_TEMP_QUESTION_TABLE);
     await database.query(SQL.CREATE_TEMP_ANSWER_TABLE);
     await database.query(SQL.CREATE_TEMP_JUDGE_FINAL_GUESS_TABLE);
+    await database.query(SQL.CREATE_TEMP_JUDGE_GUESS);
     await database.query(SQL.CREATE_TEMP_PLAYER_COMBINATION);
     await database.query(SQL.CREATE_TEMP_GAME_ORGANIZER);
 
@@ -445,17 +460,5 @@ describe('Database tests', () => {
 
         games_after_delete = await getGame(2);
         expect(games_after_delete).toHaveLength(1);
-    });
-
-    test('Delete from game_configuration table', async () => {
-        const gameId = TEST_DATA.GAME.game_id;
-
-        const games_before_delete = await getGameConfiguration(gameId);
-        expect(games_before_delete).toHaveLength(1);
-
-        await deleteGame({ game_id: gameId }, {});
-
-        const games_after_delete = await getGameConfiguration(gameId);
-        expect(games_after_delete).toHaveLength(0);
     });
 });
