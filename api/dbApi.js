@@ -76,13 +76,15 @@ exports.deleteGame = async (req, res) => {
         await transaction.query('deletePlayerPairs.sql', [game_id]);
         await transaction.query('deleteJudgeGuess.sql', [playerIds]);
         await transaction.query('deleteJudgeFinalGuessPlayers.sql', [playerIds]);
-        await transaction.query('deletePlayers.sql', [playerIds]);
     }
     await transaction.query('deleteGameOrganizer.sql', [game_id]);
     await transaction.query('deleteAnswer.sql', [game_id]);
     await transaction.query('deleteQuestion.sql', [game_id]);
     await transaction.query('deleteGame.sql', [game_id]);
     await transaction.query('deleteConfiguration.sql', [game_id]);
+    if (playerIds.length > 0) {
+        await transaction.query('deletePlayers.sql', [playerIds]);
+    }
     transaction.commit();
     transaction.end();
 };
