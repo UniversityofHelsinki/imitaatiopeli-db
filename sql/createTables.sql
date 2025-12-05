@@ -153,9 +153,9 @@ CREATE TABLE IF NOT EXISTS PROMPT_SUFFIX_TEMPLATE (
 );
 
 INSERT INTO PROMPT_SUFFIX_TEMPLATE (language_code, suffix_template) VALUES
-    ('fi', 'vastauksen tulisi olla noin {length} merkkiä pitkä eikä ylittää koskaan 500 merkkiä. Vastaa suomen kielellä.'),
-    ('en', 'the answer should be around {length} characters and never exceed 500 characters. Answer in English language.'),
-    ('sv', 'svaret bör vara cirka {length} tecken långt och får aldrig överstiga 50 tecken. Svara på svenska.')
+    ('fi', 'vastauksen tulisi olla noin {length} merkkiä pitkä eikä ylittää koskaan 2000 merkkiä. Vastaa suomen kielellä.'),
+    ('en', 'the answer should be around {length} characters and never exceed 2000 characters. Answer in English language.'),
+    ('sv', 'svaret bör vara cirka {length} tecken långt och får aldrig överstiga 2000 tecken. Svara på svenska.')
     ON CONFLICT (language_code) DO NOTHING;
 
 CREATE INDEX IF NOT EXISTS idx_final_judge_guess_game_id ON judge_final_guess(game_id);
