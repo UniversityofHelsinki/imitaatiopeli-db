@@ -1,6 +1,7 @@
 SELECT * FROM (
                   SELECT
                       pj.nickname AS player_name,
+                      pp.nickname AS respondent,
                       q.judge_id AS player,
                       CAST(ROW_NUMBER() OVER (PARTITION BY q.judge_id ORDER BY q.created) AS TEXT) AS sequence,
                       q.question_text AS question,
@@ -25,6 +26,7 @@ SELECT * FROM (
 
                   SELECT
                       pj.nickname AS player_name,
+                      pp.nickname AS respondent,
                       jfg.judge_id AS player,
                       'Final' AS sequence,
                       NULL AS question,
