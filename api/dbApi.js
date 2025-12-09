@@ -231,8 +231,8 @@ exports.getFinalGuessRes = async (req, res) => {
         const result = await database.query(sqlQuery, [judgeId, gameId]);
         const row = result.rows[0];
         res.json({
-            final_was_correct: row.final_was_correct,
-            show_result: row.show_result,
+            final_was_correct: row?.final_was_correct,
+            show_result: row?.show_result,
         });
     } catch (error) {
         console.error('Error fetching final guess result:', error);
