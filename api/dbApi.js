@@ -219,3 +219,23 @@ exports.getJudgeSummary = async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch judge summary' });
     }
 };
+
+exports.getFinalGuessRes = async (req, res) => {
+    try {
+        const { judgeId, gameId } = req.params;
+
+        const sqlQuery = fs.readFileSync(
+            path.resolve(__dirname, '../sql/getFinalGuessResult.sql'),
+            'utf8',
+        );
+        const result = await database.query(sqlQuery, [judgeId, gameId]);
+        const row = result.rows[0];
+        res.json({
+            final_was_correct: row?.final_was_correct,
+            show_result: row?.show_result,
+        });
+    } catch (error) {
+        console.error('Error fetching final guess result:', error);
+        res.status(500).json({ error: 'Failed to final guess result' });
+    }
+};

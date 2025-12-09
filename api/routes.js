@@ -2,7 +2,7 @@ const { logger } = require('../logger');
 const { execute } = require('../services/database');
 const game = require('../services/game');
 const { savePlayer, pairs } = require('../services/players');
-const { getPlayerById, deleteGame, getJudgeById } = require('./dbApi');
+const { getPlayerById, deleteGame, getJudgeById, getFinalGuessRes } = require('./dbApi');
 const crypto = require('node:crypto');
 const { insertAnswer } = require('../services/answer');
 const { insertGuess } = require('../services/guess');
@@ -16,6 +16,7 @@ module.exports = (router) => {
 
     router.get('/getPlayerById/:playerId', getPlayerById);
     router.get('/getJudgeById/:playerId/:gameId', getJudgeById);
+    router.get('/getFinalGuessRes/:judgeId/:gameId', getFinalGuessRes);
 
     router.get('/getJudgeQuestions/:judgeId/:gameId', getJudgeQuestions);
     router.get('/getAIAnswerForQuestion/:aiId/:questionId/:gameId', getAIAnswerForQuestion);
@@ -47,6 +48,7 @@ module.exports = (router) => {
             body.configuration.language_model,
             body.configuration.model_temperature,
             body.configuration.answer_randomization,
+            body.configuration.show_result,
         ]);
 
         const game = await execute('createGame.sql', [
@@ -80,6 +82,7 @@ module.exports = (router) => {
             body.configuration.model_temperature,
             body.configuration.config_id,
             body.configuration.answer_randomization,
+            body.configuration.show_result,
         ]);
 
         if (queryResults?.length === 1) {

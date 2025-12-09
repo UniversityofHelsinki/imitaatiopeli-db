@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS GAME_CONFIGURATION (
                                                   is_research_game BOOLEAN,
                                                   research_description VARCHAR(4000),
                                                   ai_answer_position integer,
+                                                  show_result BOOLEAN,
                                                   PRIMARY KEY(config_id)
 );
 
