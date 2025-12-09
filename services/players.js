@@ -30,9 +30,22 @@ const pairs = async (req, res) => {
         console.error(error);
         res.status(500).json([]);
     }
-}
+};
+
+const playercount = async (req, res) => {
+    try {
+        const { gameId } = req.params;
+        const gamePlayers = await database.execute('getGamePlayersByGameId.sql', [gameId]);
+        const count = Array.isArray(gamePlayers) ? gamePlayers.length : 0;
+        res.json(count);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json([]);
+    }
+};
 
 module.exports = {
     savePlayer,
-    pairs
+    pairs,
+    playercount,
 };
