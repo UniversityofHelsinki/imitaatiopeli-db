@@ -173,6 +173,16 @@ const getQuestionById = async (questionId) => {
     return question[0];
 };
 
+const allPromptTemplates = async () => {
+    const promptTemplates = await execute('getPromptTemplates.sql');
+
+    if (!promptTemplates[0]) {
+        return null;
+    }
+
+    return promptTemplates;
+};
+
 module.exports = {
     get,
     getByCode,
@@ -184,4 +194,5 @@ module.exports = {
     getAIAnswerForQuestion,
     getJudgeQuestions,
     getQuestionById,
+    allPromptTemplates
 };
