@@ -430,4 +430,12 @@ module.exports = (router) => {
             return res.status(500).json({ error: 'Failed to fetch game summary' });
         }
     });
-};
+
+    router.get('/promptTemplates', async (req, res) => {
+        const result = await execute('getPromptTemplates.sql', []);
+            if (!result) {
+                return res.status(404).json({ error: 'No prompt templates found' });
+            }
+            res.json(result);
+        });
+    };
