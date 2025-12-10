@@ -74,7 +74,7 @@ const all = async (eppn) => {
         };
     }
 
-    return games.map(game => ({
+    return games.map((game) => ({
         ...gamesByConfiguration[game.config_id],
         configuration: {
             config_id: game.config_id,
@@ -83,8 +83,8 @@ const all = async (eppn) => {
             language_model: game.language_model,
             language_used: game.language_used,
             is_research_game: game.is_research_game,
-            research_description: game.research_description
-        }
+            research_description: game.research_description,
+        },
     }));
 };
 
@@ -173,6 +173,16 @@ const getQuestionById = async (questionId) => {
     return question[0];
 };
 
+const allPromptTemplates = async () => {
+    const promptTemplates = await execute('getPromptTemplates.sql');
+
+    if (!promptTemplates[0]) {
+        return null;
+    }
+
+    return promptTemplates;
+};
+
 module.exports = {
     get,
     getByCode,
@@ -184,4 +194,5 @@ module.exports = {
     getAIAnswerForQuestion,
     getJudgeQuestions,
     getQuestionById,
+    allPromptTemplates,
 };

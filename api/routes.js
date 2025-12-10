@@ -1,7 +1,7 @@
 const { logger } = require('../logger');
 const { execute } = require('../services/database');
 const game = require('../services/game');
-const { savePlayer, pairs } = require('../services/players');
+const { savePlayer, pairs, playercount } = require('../services/players');
 const {
     getPlayerById,
     deleteGame,
@@ -182,6 +182,8 @@ module.exports = (router) => {
             });
         }
     });
+
+    router.get('/game/playercount/:gameId', playercount);
 
     router.get('/games/:id/lobby', async (req, res) => {
         const { id } = req.params;
@@ -434,5 +436,13 @@ module.exports = (router) => {
             console.error('Error fetching game summary:', error);
             return res.status(500).json({ error: 'Failed to fetch game summary' });
         }
+    });
+
+    router.get('/promptTemplates', async (req, res) => {
+        const result = await execute('getPromptTemplates.sql', []);
+        if (!result) {
+            return res.status(404).json({ error: 'No prompt templates found' });
+        }
+        res.json(result);
     });
 };
