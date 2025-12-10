@@ -1,7 +1,7 @@
 const { logger } = require('../logger');
 const { execute } = require('../services/database');
 const game = require('../services/game');
-const { savePlayer, pairs } = require('../services/players');
+const { savePlayer, pairs, playercount } = require('../services/players');
 const { getPlayerById, deleteGame, getJudgeById, getFinalGuessRes } = require('./dbApi');
 const crypto = require('node:crypto');
 const { insertAnswer } = require('../services/answer');
@@ -175,6 +175,8 @@ module.exports = (router) => {
             });
         }
     });
+
+    router.get('/game/playercount/:gameId', playercount);
 
     router.get('/games/:id/lobby', async (req, res) => {
         const { id } = req.params;
