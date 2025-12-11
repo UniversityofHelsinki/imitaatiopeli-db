@@ -239,3 +239,20 @@ exports.getFinalGuessRes = async (req, res) => {
         res.status(500).json({ error: 'Failed to final guess result' });
     }
 };
+
+exports.getHaveAllPlayersEndedGame = async (req, res) => {
+    try {
+        const { gameId } = req.params;
+
+        const sqlQuery = fs.readFileSync(
+            path.resolve(__dirname, '../sql/getHaveAllPlayersEndedGame.sql'),
+            'utf8',
+        );
+        const result = await database.query(sqlQuery, [gameId]);
+        const row = result.rows[0];
+        res.json(row);
+    } catch (error) {
+        console.error('Error fetching have all players ended the game result:', error);
+        res.status(500).json({ error: 'Failed to have all players ended the game result' });
+    }
+};
