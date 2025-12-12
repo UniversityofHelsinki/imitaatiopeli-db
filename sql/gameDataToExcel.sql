@@ -16,7 +16,7 @@ SELECT * FROM (
                   FROM question q
                            JOIN player_combination pc ON pc.game_id = q.game_id AND pc.judge_id = q.judge_id
                            JOIN player pj ON pj.player_id = q.judge_id
-                           JOIN player pp ON pp.player_id = pc.player_id AND pp.is_pretender = FALSE
+                           JOIN player pp ON pp.player_id = pc.player_id AND pp.is_pretender = TRUE
                            LEFT JOIN answer a_pretender ON a_pretender.question_id = q.question_id AND a_pretender.is_pretender = FALSE
                            LEFT JOIN answer a_non ON a_non.question_id = q.question_id AND a_non.player_id = pp.player_id
                            LEFT JOIN judge_guess jg ON jg.question_id = q.question_id AND jg.judge_id = q.judge_id
