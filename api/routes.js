@@ -455,6 +455,17 @@ module.exports = (router) => {
         });
     });
 
+    router.get('/games/:id/gameConfiguration', async (req, res) => {
+        try {
+            const { id } = req.params;
+            const configuration = await execute('gameConfiguration.sql', [id]);
+            res.json(configuration?.[0]);
+        } catch (error) {
+            console.error('Error fetching game configuration:', error);
+            return res.status(500).json({ error: 'Failed to fetch game configuration' });
+        }
+    });
+
     router.get('/games/:gameId/:eppn/summary', async (req, res) => {
         try {
             const { gameId, eppn } = req.params;
