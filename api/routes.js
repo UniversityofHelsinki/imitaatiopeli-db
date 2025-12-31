@@ -354,6 +354,7 @@ module.exports = (router) => {
                 judgeId,
                 confidence,
                 is_pretender,
+                new Date(),
                 argument,
             ]);
 
