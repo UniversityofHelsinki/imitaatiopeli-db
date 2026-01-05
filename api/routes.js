@@ -260,6 +260,38 @@ module.exports = (router) => {
         res.json(result[0]);
     });
 
+    router.get('/getAnswerCountByGameIdQuestionId/:gameId/:questionId', async (req, res) => {
+        const { gameId, questionId } = req.params;
+        const result = await execute('getAnswerCountByGameIdQuestionId.sql', [gameId, questionId]);
+        if (!result) {
+            return res.status(404).json({ error: 'No getAnswerCountByGameIdQuestionId found' });
+        }
+        res.json(result[0]);
+    });
+
+    router.get('/getAnswerCountQuestionCountByGameIdJudgeId/:gameId/:judgeId', async (req, res) => {
+        const { gameId, judgeId } = req.params;
+        const result = await execute('getAnswerCountQuestionCountByGameIdJudgeId.sql', [
+            gameId,
+            judgeId,
+        ]);
+        if (!result) {
+            return res
+                .status(404)
+                .json({ error: 'No getAnswerCountQuestionCountByGameIdJudgeId found' });
+        }
+        res.json(result[0]);
+    });
+
+    router.get('/getJudgeGuessAndQuestionCounts/:gameId/:judgeId', async (req, res) => {
+        const { gameId, judgeId } = req.params;
+        const result = await execute('getJudgeGuessAndQuestionCounts.sql', [gameId, judgeId]);
+        if (!result) {
+            return res.status(404).json({ error: 'No getJudgeGuessAndQuestionCounts.sql found' });
+        }
+        res.json(result[0]);
+    });
+
     router.get('/question/:questionId', async (req, res) => {
         const { questionId } = req.params;
         const result = await game.getQuestionById(questionId);
@@ -322,6 +354,7 @@ module.exports = (router) => {
                 judgeId,
                 confidence,
                 is_pretender,
+                new Date(),
                 argument,
             ]);
 

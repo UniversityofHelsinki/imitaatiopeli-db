@@ -142,7 +142,7 @@ CREATE TABLE IF NOT EXISTS JUDGE_FINAL_GUESS (
     judge_id INTEGER REFERENCES PLAYER(player_id),
     confidence INTEGER,
     was_correct BOOLEAN,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP,
     argument VARCHAR(2000),
     PRIMARY KEY(final_guess_id),
     UNIQUE(game_id, judge_id)
