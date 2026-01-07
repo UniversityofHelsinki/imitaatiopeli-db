@@ -116,6 +116,7 @@ CREATE TABLE IF NOT EXISTS GAME_PLAYERS (
     game_id INTEGER NOT NULL,
     player_id INTEGER NOT NULL,
     joined_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    wants_to_send_final_guess BOOLEAN DEFAULT FALSE,
     PRIMARY KEY (game_id, player_id),
     FOREIGN KEY (game_id) REFERENCES GAME(game_id) ON DELETE CASCADE,
     FOREIGN KEY (player_id) REFERENCES PLAYER(player_id) ON DELETE CASCADE
@@ -142,7 +143,7 @@ CREATE TABLE IF NOT EXISTS JUDGE_FINAL_GUESS (
     judge_id INTEGER REFERENCES PLAYER(player_id),
     confidence INTEGER,
     was_correct BOOLEAN,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP,
     argument VARCHAR(2000),
     PRIMARY KEY(final_guess_id),
     UNIQUE(game_id, judge_id)

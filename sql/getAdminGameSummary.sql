@@ -4,7 +4,9 @@ SELECT
     p.nickname,
     COALESCE(qc.question_count, 0)  AS questions_asked,
     COALESCE(cc.correct_guesses, 0) AS correct_guesses,
-    COALESCE(cg.guesses_sent, 0)    AS guesses_sent
+    COALESCE(cg.guesses_sent, 0)    AS guesses_sent,
+    jfg.was_correct                 AS final_was_correct,
+    gc.show_result
 FROM game_players gp
          JOIN player p
               ON p.player_id = gp.player_id
@@ -38,8 +40,15 @@ FROM game_players gp
     GROUP BY jg.judge_id
 ) cg
                    ON cg.judge_id = p.player_id
+         LEFT JOIN judge_final_guess jfg
+                   ON jfg.game_id = gp.game_id
+                       AND jfg.judge_id = p.player_id
+         LEFT JOIN game g
+                   ON g.game_id = gp.game_id
+         LEFT JOIN game_configuration gc
+                   ON gc.config_id = g.config_id
          JOIN game_organizer go
-              ON go.game_id = gp.game_id
-                  AND go.user_id::text = $2
+ON go.game_id = gp.game_id
+    AND go.user_id::text = $2
 WHERE gp.game_id = $1
 ORDER BY p.player_id;

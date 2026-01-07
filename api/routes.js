@@ -8,6 +8,8 @@ const {
     getJudgeById,
     getFinalGuessRes,
     getHaveAllPlayersEndedGame,
+    getPlayerStatus,
+    playerReadyForFinalReview,
 } = require('./dbApi');
 const crypto = require('node:crypto');
 const { insertAnswer } = require('../services/answer');
@@ -260,6 +262,38 @@ module.exports = (router) => {
         res.json(result[0]);
     });
 
+    router.get('/getAnswerCountByGameIdQuestionId/:gameId/:questionId', async (req, res) => {
+        const { gameId, questionId } = req.params;
+        const result = await execute('getAnswerCountByGameIdQuestionId.sql', [gameId, questionId]);
+        if (!result) {
+            return res.status(404).json({ error: 'No getAnswerCountByGameIdQuestionId found' });
+        }
+        res.json(result[0]);
+    });
+
+    router.get('/getAnswerCountQuestionCountByGameIdJudgeId/:gameId/:judgeId', async (req, res) => {
+        const { gameId, judgeId } = req.params;
+        const result = await execute('getAnswerCountQuestionCountByGameIdJudgeId.sql', [
+            gameId,
+            judgeId,
+        ]);
+        if (!result) {
+            return res
+                .status(404)
+                .json({ error: 'No getAnswerCountQuestionCountByGameIdJudgeId found' });
+        }
+        res.json(result[0]);
+    });
+
+    router.get('/getJudgeGuessAndQuestionCounts/:gameId/:judgeId', async (req, res) => {
+        const { gameId, judgeId } = req.params;
+        const result = await execute('getJudgeGuessAndQuestionCounts.sql', [gameId, judgeId]);
+        if (!result) {
+            return res.status(404).json({ error: 'No getJudgeGuessAndQuestionCounts.sql found' });
+        }
+        res.json(result[0]);
+    });
+
     router.get('/question/:questionId', async (req, res) => {
         const { questionId } = req.params;
         const result = await game.getQuestionById(questionId);
@@ -322,6 +356,7 @@ module.exports = (router) => {
                 judgeId,
                 confidence,
                 is_pretender,
+                new Date(),
                 argument,
             ]);
 
@@ -423,6 +458,17 @@ module.exports = (router) => {
         });
     });
 
+    router.get('/games/:id/gameConfiguration', async (req, res) => {
+        try {
+            const { id } = req.params;
+            const configuration = await execute('gameConfiguration.sql', [id]);
+            res.json(configuration?.[0]);
+        } catch (error) {
+            console.error('Error fetching game configuration:', error);
+            return res.status(500).json({ error: 'Failed to fetch game configuration' });
+        }
+    });
+
     router.get('/games/:gameId/:eppn/summary', async (req, res) => {
         try {
             const { gameId, eppn } = req.params;
@@ -445,4 +491,8 @@ module.exports = (router) => {
         }
         res.json(result);
     });
+
+    router.get('/player/:playerId/:gameId/status', getPlayerStatus);
+
+    router.get('/player/:playerId/:gameId/ready-for-final-review', playerReadyForFinalReview);
 };
