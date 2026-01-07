@@ -672,4 +672,33 @@ describe('getPlayerStatus', () => {
         result = await getStatus(judgeId, gameId);
         expect(result.status).toBe('final-review');
     });
+
+    test('should return answer when player needs to answer a question from their judge', async () => {
+        const { gameId, judgeId: playerBId } = await setupPlayerStatusGame();
+
+        // Player B is judgeId in setupPlayerStatusGame (the player whose status we will check)
+
+        // Create Player A (who will be the judge for Player B)
+        const playerA = await database.query(
+            'INSERT INTO PLAYER (nickname) VALUES ($1) RETURNING player_id',
+            ['judge-A-' + Math.random()],
+        );
+        const playerAId = playerA.rows[0].player_id;
+
+        // In PLAYER_COMBINATION: player_id is the judge(asker), judge_id is the answerer
+        await database.query(
+            'INSERT INTO PLAYER_COMBINATION (game_id, judge_id, player_id) VALUES ($1, $2, $3)',
+            [gameId, playerBId, playerAId],
+        );
+
+        // Player A asks a question
+        await database.query(
+            'INSERT INTO QUESTION (game_id, judge_id, question_text) VALUES ($1, $2, $3)',
+            [gameId, playerAId, 'What is your favorite color?'],
+        );
+
+        // Now Player B should have status 'answer'
+        const result = await getStatus(playerBId, gameId);
+        expect(result.status).toBe('answer');
+    });
 });
