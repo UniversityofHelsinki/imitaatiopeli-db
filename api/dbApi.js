@@ -256,3 +256,39 @@ exports.getHaveAllPlayersEndedGame = async (req, res) => {
         res.status(500).json({ error: 'Failed to have all players ended the game result' });
     }
 };
+
+exports.getPlayerStatus = async (req, res) => {
+    try {
+        const { playerId, gameId } = req.params;
+        const sqlQuery = fs.readFileSync(
+            path.resolve(__dirname, '../sql/getPlayerStatus.sql'),
+            'utf8',
+        );
+        const result = await database.query(sqlQuery, [playerId, gameId]);
+        const row = result.rows[0];
+        res.json(row);
+    } catch (error) {
+        console.error('Error fetching player status:', error);
+        res.status(500).json({ error: 'Failed to fetch player status' });
+    }
+};
+
+exports.playerReadyForFinalReview = async (req, res) => {
+    try {
+        const { playerId, gameId } = req.params;
+        const sqlQuery = fs.readFileSync(
+            path.resolve(__dirname, '../sql/readyForFinalReview.sql'),
+            'utf8',
+        );
+        const result = await database.query(sqlQuery, [playerId, gameId]);
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ message: 'Player or game not found' });
+        }
+
+        const row = result.rows[0];
+        res.json(row);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to update player status' });
+    }
+};

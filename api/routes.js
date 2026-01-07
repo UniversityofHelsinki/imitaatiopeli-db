@@ -8,6 +8,8 @@ const {
     getJudgeById,
     getFinalGuessRes,
     getHaveAllPlayersEndedGame,
+    getPlayerStatus,
+    playerReadyForFinalReview,
 } = require('./dbApi');
 const crypto = require('node:crypto');
 const { insertAnswer } = require('../services/answer');
@@ -489,4 +491,8 @@ module.exports = (router) => {
         }
         res.json(result);
     });
+
+    router.get('/player/:playerId/:gameId/status', getPlayerStatus);
+
+    router.get('/player/:playerId/:gameId/ready-for-final-review', playerReadyForFinalReview);
 };
