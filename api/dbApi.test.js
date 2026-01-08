@@ -807,4 +807,28 @@ describe('getAnswererStatus', () => {
         const result = await getStatus(playerId, gameId);
         expect(result.status).toBe('wait');
     });
+
+    test('should return judging-ended when the judge has set wants_to_send_final_guess to true', async () => {
+        const { gameId, playerId } = await setupAnswererGame();
+
+        const judge = await database.query(
+            'INSERT INTO PLAYER (nickname) VALUES ($1) RETURNING player_id',
+            ['judge-' + Math.random()],
+        );
+        const judgeId = judge.rows[0].player_id;
+
+        await database.query(
+            'INSERT INTO PLAYER_COMBINATION (game_id, judge_id, player_id) VALUES ($1, $2, $3)',
+            [gameId, playerId, judgeId],
+        );
+
+        // Add judge to GAME_PLAYERS and set wants_to_send_final_guess to true
+        await database.query(
+            'INSERT INTO GAME_PLAYERS (game_id, player_id, wants_to_send_final_guess) VALUES ($1, $2, $3)',
+            [gameId, judgeId, true],
+        );
+
+        const result = await getStatus(playerId, gameId);
+        expect(result.status).toBe('judging-ended');
+    });
 });
