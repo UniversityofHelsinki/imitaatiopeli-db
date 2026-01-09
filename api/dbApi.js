@@ -256,3 +256,95 @@ exports.getHaveAllPlayersEndedGame = async (req, res) => {
         res.status(500).json({ error: 'Failed to have all players ended the game result' });
     }
 };
+
+exports.getJudgeStatus = async (req, res) => {
+    try {
+        const { playerId, gameId } = req.params;
+        const sqlQuery = fs.readFileSync(
+            path.resolve(__dirname, '../sql/getJudgeStatus.sql'),
+            'utf8',
+        );
+        const result = await database.query(sqlQuery, [playerId, gameId]);
+        const row = result.rows[0];
+        res.json(row);
+    } catch (error) {
+        console.error('Error fetching judge status:', error);
+        res.status(500).json({ error: 'Failed to fetch judge status' });
+    }
+};
+
+exports.getAnswererStatus = async (req, res) => {
+    try {
+        const { playerId, gameId } = req.params;
+        const sqlQuery = fs.readFileSync(
+            path.resolve(__dirname, '../sql/getAnswererStatus.sql'),
+            'utf8',
+        );
+        const result = await database.query(sqlQuery, [playerId, gameId]);
+        const row = result.rows[0];
+        res.json(row);
+    } catch (error) {
+        console.error('Error fetching answerer status:', error);
+        res.status(500).json({ error: 'Failed to fetch answerer status' });
+    }
+};
+
+exports.getPlayerStatus = async (req, res) => {
+    try {
+        const { playerId, gameId } = req.params;
+
+        // First check if they have a judging status that isn't 'ask'
+        const getJudgeStatusSQL = fs.readFileSync(
+            path.resolve(__dirname, '../sql/getJudgeStatus.sql'),
+            'utf8',
+        );
+        const judgeResult = await database.query(getJudgeStatusSQL, [playerId, gameId]);
+        const judgeStatus = judgeResult.rows[0]?.status;
+
+        // Then check if they need to answer a question
+        const getAnswererStatusSQL = fs.readFileSync(
+            path.resolve(__dirname, '../sql/getAnswererStatus.sql'),
+            'utf8',
+        );
+        const answererResult = await database.query(getAnswererStatusSQL, [playerId, gameId]);
+        const answererStatus = answererResult.rows[0]?.status;
+
+        // Logic for combined status:
+        // 1. 'end' judge status takes top priority
+        // 2. 'answer' status takes second priority
+        // 3. Other judge statuses (rate, wait, final-review, ask) take third priority
+
+        if (judgeStatus === 'end') {
+            return res.json({ status: 'end' });
+        }
+
+        if (answererStatus === 'answer') {
+            return res.json({ status: 'answer' });
+        }
+
+        return res.json({ status: judgeStatus || 'ask' });
+    } catch (error) {
+        console.error('Error fetching combined player status:', error);
+        res.status(500).json({ error: 'Failed to fetch player status' });
+    }
+};
+
+exports.playerReadyForFinalReview = async (req, res) => {
+    try {
+        const { playerId, gameId } = req.params;
+        const sqlQuery = fs.readFileSync(
+            path.resolve(__dirname, '../sql/readyForFinalReview.sql'),
+            'utf8',
+        );
+        const result = await database.query(sqlQuery, [playerId, gameId]);
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ message: 'Player or game not found' });
+        }
+
+        const row = result.rows[0];
+        res.json(row);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to update player status' });
+    }
+};
