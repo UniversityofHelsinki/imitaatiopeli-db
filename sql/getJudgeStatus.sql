@@ -36,7 +36,7 @@ player_intent AS (
 final_guess AS (
     SELECT 1 FROM JUDGE_FINAL_GUESS WHERE game_id = $2 AND judge_id = $1
 )
--- Determine the current status of the player (judge)
+-- Determine the current status of the player
 SELECT
     CASE
         -- 'end': The final rating has been made

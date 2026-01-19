@@ -8,7 +8,7 @@ const {
     expect,
 } = require('@jest/globals');
 const database = require('../services/database');
-const { deleteGame, getPlayerStatus } = require('./dbApi');
+const { deleteGame, getJudgeStatus, getAnswererStatus, getPlayerStatus } = require('./dbApi');
 
 // Test data constants
 const TEST_DATA = {
@@ -485,14 +485,14 @@ describe('Database tests', () => {
     });
 });
 
-describe('getPlayerStatus', () => {
+describe('getJudgeStatus', () => {
     const getStatus = async (playerId, gameId) => {
         const req = { params: { playerId, gameId } };
         const res = {
             json: jest.fn(),
             status: jest.fn().mockReturnThis(),
         };
-        await getPlayerStatus(req, res);
+        await getJudgeStatus(req, res);
         return res.json.mock.calls[0][0];
     };
 
@@ -671,5 +671,164 @@ describe('getPlayerStatus', () => {
 
         result = await getStatus(judgeId, gameId);
         expect(result.status).toBe('final-review');
+    });
+
+    test('should return answer when player needs to answer a question from their judge', async () => {
+        const { gameId, judgeId: playerBId } = await setupPlayerStatusGame();
+
+        // Player B is judgeId in setupPlayerStatusGame (the player whose status we will check)
+
+        // Create Player A (who will be the judge for Player B)
+        const playerA = await database.query(
+            'INSERT INTO PLAYER (nickname) VALUES ($1) RETURNING player_id',
+            ['judge-A-' + Math.random()],
+        );
+        const playerAId = playerA.rows[0].player_id;
+
+        // In PLAYER_COMBINATION: player_id is the judge(asker), judge_id is the answerer
+        await database.query(
+            'INSERT INTO PLAYER_COMBINATION (game_id, judge_id, player_id) VALUES ($1, $2, $3)',
+            [gameId, playerBId, playerAId],
+        );
+
+        // Player A asks a question
+        await database.query(
+            'INSERT INTO QUESTION (game_id, judge_id, question_text) VALUES ($1, $2, $3)',
+            [gameId, playerAId, 'What is your favorite color?'],
+        );
+
+        // Now Player B should have status 'answer' (via getAnswererStatus which combines both)
+        const req = { params: { playerId: playerBId, gameId } };
+        const res = {
+            json: jest.fn(),
+            status: jest.fn().mockReturnThis(),
+        };
+        await getAnswererStatus(req, res);
+        const result = res.json.mock.calls[0][0];
+        expect(result.status).toBe('answer');
+    });
+});
+
+describe('getAnswererStatus', () => {
+    const getStatus = async (playerId, gameId) => {
+        const req = { params: { playerId, gameId } };
+        const res = {
+            json: jest.fn(),
+            status: jest.fn().mockReturnThis(),
+        };
+        await getAnswererStatus(req, res);
+        return res.json.mock.calls[0][0];
+    };
+
+    const setupAnswererGame = async () => {
+        const lm = await database.query(
+            'INSERT INTO LANGUAGE_MODEL (name) VALUES ($1) RETURNING model_id',
+            ['test-model'],
+        );
+        const config = await database.query(
+            'INSERT INTO GAME_CONFIGURATION (max_questions, language_model) VALUES ($1, $2) RETURNING config_id',
+            [3, lm.rows[0].model_id],
+        );
+        const game = await database.query(
+            'INSERT INTO GAME (config_id, game_code, start_time) VALUES ($1, $2, NOW()) RETURNING game_id',
+            [config.rows[0].config_id, 'TEST-ANSWERER-CODE-' + Math.random()],
+        );
+        const player = await database.query(
+            'INSERT INTO PLAYER (nickname) VALUES ($1) RETURNING player_id',
+            ['answerer-player-' + Math.random()],
+        );
+        await database.query('INSERT INTO GAME_PLAYERS (game_id, player_id) VALUES ($1, $2)', [
+            game.rows[0].game_id,
+            player.rows[0].player_id,
+        ]);
+        return { gameId: game.rows[0].game_id, playerId: player.rows[0].player_id };
+    };
+
+    test('should return wait when player has no questions from their judge', async () => {
+        const { gameId, playerId } = await setupAnswererGame();
+
+        // Create a judge for this player but judge hasn't asked anything
+        const judge = await database.query(
+            'INSERT INTO PLAYER (nickname) VALUES ($1) RETURNING player_id',
+            ['judge-' + Math.random()],
+        );
+        await database.query(
+            'INSERT INTO PLAYER_COMBINATION (game_id, judge_id, player_id) VALUES ($1, $2, $3)',
+            [gameId, playerId, judge.rows[0].player_id],
+        );
+
+        const result = await getStatus(playerId, gameId);
+        expect(result.status).toBe('wait');
+    });
+
+    test('should return answer when player has unanswered questions from their judge', async () => {
+        const { gameId, playerId } = await setupAnswererGame();
+
+        const judge = await database.query(
+            'INSERT INTO PLAYER (nickname) VALUES ($1) RETURNING player_id',
+            ['judge-' + Math.random()],
+        );
+        await database.query(
+            'INSERT INTO PLAYER_COMBINATION (game_id, judge_id, player_id) VALUES ($1, $2, $3)',
+            [gameId, playerId, judge.rows[0].player_id],
+        );
+
+        await database.query(
+            'INSERT INTO QUESTION (game_id, judge_id, question_text) VALUES ($1, $2, $3)',
+            [gameId, judge.rows[0].player_id, 'Test question'],
+        );
+
+        const result = await getStatus(playerId, gameId);
+        expect(result.status).toBe('answer');
+    });
+
+    test('should return wait when player has already answered all questions from their judge', async () => {
+        const { gameId, playerId } = await setupAnswererGame();
+
+        const judge = await database.query(
+            'INSERT INTO PLAYER (nickname) VALUES ($1) RETURNING player_id',
+            ['judge-' + Math.random()],
+        );
+        await database.query(
+            'INSERT INTO PLAYER_COMBINATION (game_id, judge_id, player_id) VALUES ($1, $2, $3)',
+            [gameId, playerId, judge.rows[0].player_id],
+        );
+
+        const q = await database.query(
+            'INSERT INTO QUESTION (game_id, judge_id, question_text) VALUES ($1, $2, $3) RETURNING question_id',
+            [gameId, judge.rows[0].player_id, 'Test question'],
+        );
+
+        await database.query(
+            'INSERT INTO ANSWER (question_id, player_id, answer_text) VALUES ($1, $2, $3)',
+            [q.rows[0].question_id, playerId, 'My answer'],
+        );
+
+        const result = await getStatus(playerId, gameId);
+        expect(result.status).toBe('wait');
+    });
+
+    test('should return judging-ended when the judge has set wants_to_send_final_guess to true', async () => {
+        const { gameId, playerId } = await setupAnswererGame();
+
+        const judge = await database.query(
+            'INSERT INTO PLAYER (nickname) VALUES ($1) RETURNING player_id',
+            ['judge-' + Math.random()],
+        );
+        const judgeId = judge.rows[0].player_id;
+
+        await database.query(
+            'INSERT INTO PLAYER_COMBINATION (game_id, judge_id, player_id) VALUES ($1, $2, $3)',
+            [gameId, playerId, judgeId],
+        );
+
+        // Add judge to GAME_PLAYERS and set wants_to_send_final_guess to true
+        await database.query(
+            'INSERT INTO GAME_PLAYERS (game_id, player_id, wants_to_send_final_guess) VALUES ($1, $2, $3)',
+            [gameId, judgeId, true],
+        );
+
+        const result = await getStatus(playerId, gameId);
+        expect(result.status).toBe('judging-ended');
     });
 });
