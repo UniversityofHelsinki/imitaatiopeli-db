@@ -21,9 +21,9 @@ WITH needs_to_answer AS (
 -- Determine the current status of the player
 SELECT
     CASE
-        -- 'judging-ended': The player's judge has set wants_to_send_final_guess to true
-        WHEN EXISTS (SELECT 1 FROM judging_ended) THEN 'judging-ended'
         -- 'answer': The player needs to answer a question from their judge
         WHEN EXISTS (SELECT 1 FROM needs_to_answer) THEN 'answer'
+        -- 'judging-ended': The player's judge has set wants_to_send_final_guess to true
+        WHEN EXISTS (SELECT 1 FROM judging_ended) THEN 'judging-ended'
         ELSE 'wait'
         END as status;
