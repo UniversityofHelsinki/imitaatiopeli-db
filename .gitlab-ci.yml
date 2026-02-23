@@ -208,9 +208,54 @@ deploy_prod:
         name: prod
     only:
         - prod
+    when: manual
     except:
         # Skip deploy when scheduled npm audit and outdated scans are executed.
         - schedules
+    script:
+        # set home path for openshift 1001 user
+        - export HOME=/home/1001
+        # before any action, I connect to the OpenShift server with the appropriate credentials
+        - oc login https://$OPENSHIFT_ADDR_PROD:$OPENSHIFT_PORT --token=$OPENSHIFT_TOKEN_PROD
+        - oc project imitaatiopeli
+        # create application if it does not exist
+        - |
+            if oc get deploy/imitaatiopeli-db-prod; then 
+              echo "The application already exists."
+            else 
+              oc new-app . --name=imitaatiopeli-db-prod --strategy=docker
+              echo "The application has been created."
+            fi
+        # add secrets here
+        - oc delete secret generic imitaatiopeli-db-prod-password --ignore-not-found
+        - oc create secret generic imitaatiopeli-db-prod-password --from-literal=PASSWORD=$IMITAATIOPELI_PROD_PASSWORD
+        # list environment variables here
+        # postgres environment variables
+        - oc set env --from=secret/imitaatiopeli-db-prod-password deploy/imitaatiopeli-db-prod
+        - oc set env deploy/imitaatiopeli-db-prod OPENSHIFT_NODEJS_IP=$OPENSHIFT_NODEJS_IP
+        - oc set env deploy/imitaatiopeli-db-prod OPENSHIFT_NODEJS_PORT=$OPENSHIFT_NODEJS_PORT
+        - oc set env deploy/imitaatiopeli-db-prod POSTGRES_USER=$IMITAATIOPELI_PROD_USER_NAME
+        - oc set env deploy/imitaatiopeli-db-prod PORT=$IMITAATIOPELI_PROD_PORT
+        - oc set env deploy/imitaatiopeli-db-prod HOST=$IMITAATIOPELI_PROD_HOST
+        - oc set env deploy/imitaatiopeli-db-prod DATABASE=$IMITAATIOPELI_PROD_DATABASE
+        - oc set env deploy/imitaatiopeli-db-prod SSL=$IMITAATIOPELI_PROD_SSL
+        - oc set env deploy/imitaatiopeli-db-prod TZ="Europe/Helsinki"
+        # start build process in OpenShift
+        - oc start-build imitaatiopeli-db-prod --from-dir=. --follow
+        # patch openshift buildConfig file
+        - oc patch bc/imitaatiopeli-db-prod --patch '{"spec":{"successfulBuildsHistoryLimit":1}}'
+        - oc patch bc/imitaatiopeli-db-prod --patch '{"spec":{"failedBuildsHistoryLimit":1}}'
+
+deploy_prod_periodically:
+    stage: deploy
+    tags:
+        - ohtu-build-4
+    environment:
+        name: prod
+    rules:
+        - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == "prod"'
+          when: always
+        - when: never
     script:
         # set home path for openshift 1001 user
         - export HOME=/home/1001
