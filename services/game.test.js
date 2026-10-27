@@ -35,7 +35,8 @@ describe('game service', () => {
                 config_id INTEGER REFERENCES GAME_CONFIGURATION(config_id),
                 game_code VARCHAR(255) UNIQUE,
                 start_time TIMESTAMP,
-                end_time TIMESTAMP
+                end_time TIMESTAMP,
+                is_active BOOLEAN DEFAULT FALSE
             );
         `);
         await database.query(`

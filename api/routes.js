@@ -498,4 +498,11 @@ module.exports = (router) => {
     router.get('/answerer/:playerId/:gameId/status', getAnswererStatus);
 
     router.get('/player/:playerId/:gameId/ready-for-final-review', playerReadyForFinalReview);
+
+    router.put('/games/:id/activate', async (req, res) => {
+        const { id } = req.params;
+        await execute('activateGame.sql', [id]);
+
+        return res.status(200).json({ message: 'Game activated' });
+    });
 };
