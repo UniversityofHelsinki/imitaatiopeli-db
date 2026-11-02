@@ -1,4 +1,4 @@
-SELECT g.game_id, g.game_code, g.config_id, g.start_time, g.end_time,
+SELECT g.game_id, g.game_code, g.config_id, g.start_time, g.end_time, g.is_active,
        gc.game_name, gc.theme_description, gc.language_model, gc.language_used,
        gc.is_research_game, gc.research_description,
        go.user_id, go.created_at

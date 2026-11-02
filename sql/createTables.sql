@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS GAME (
                                     end_time TIMESTAMPTZ,
                                     game_code VARCHAR(255) UNIQUE NOT NULL,
                                     duration_minutes integer,
+                                    is_active boolean DEFAULT FALSE,
                                     PRIMARY KEY(game_id)
 );
 

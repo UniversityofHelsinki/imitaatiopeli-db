@@ -149,6 +149,9 @@ deploy_dev:
         - oc set env deploy/imitaatiopeli-db-dev DATABASE=$IMITAATIOPELI_DEV_DATABASE
         - oc set env deploy/imitaatiopeli-db-dev SSL=$IMITAATIOPELI_DEV_SSL
         - oc set env deploy/imitaatiopeli-db-dev TZ="Europe/Helsinki"
+
+        # patch Node version
+        - oc patch bc/imitaatiopeli-db-dev --type=merge --patch '{"spec":{"strategy":{"dockerStrategy":{"from":null}}}}'
         # start build process in OpenShift
         - oc start-build imitaatiopeli-db-dev --from-dir=. --follow
         # patch openshift buildConfig file
@@ -194,8 +197,9 @@ deploy_test:
         - oc set env deploy/imitaatiopeli-db-test DATABASE=$IMITAATIOPELI_TEST_DATABASE
         - oc set env deploy/imitaatiopeli-db-test SSL=$IMITAATIOPELI_TEST_SSL
         - oc set env deploy/imitaatiopeli-db-test TZ="Europe/Helsinki"
-        # start build process in OpenShift
-        - oc start-build imitaatiopeli-db-test --from-dir=. --follow
+        
+        # patch Node version
+        - oc patch bc/imitaatiopeli-db-test --type=merge --patch '{"spec":{"strategy":{"dockerStrategy":{"from":null}}}}'
         # patch openshift buildConfig file
         - oc patch bc/imitaatiopeli-db-test --patch '{"spec":{"successfulBuildsHistoryLimit":1}}'
         - oc patch bc/imitaatiopeli-db-test --patch '{"spec":{"failedBuildsHistoryLimit":1}}'
@@ -240,6 +244,9 @@ deploy_prod:
         - oc set env deploy/imitaatiopeli-db-prod DATABASE=$IMITAATIOPELI_PROD_DATABASE
         - oc set env deploy/imitaatiopeli-db-prod SSL=$IMITAATIOPELI_PROD_SSL
         - oc set env deploy/imitaatiopeli-db-prod TZ="Europe/Helsinki"
+
+        # patch Node version
+        - oc patch bc/imitaatiopeli-db-prod --type=merge --patch '{"spec":{"strategy":{"dockerStrategy":{"from":null}}}}'
         # start build process in OpenShift
         - oc start-build imitaatiopeli-db-prod --from-dir=. --follow
         # patch openshift buildConfig file
@@ -284,6 +291,9 @@ deploy_prod_periodically:
         - oc set env deploy/imitaatiopeli-db-prod DATABASE=$IMITAATIOPELI_PROD_DATABASE
         - oc set env deploy/imitaatiopeli-db-prod SSL=$IMITAATIOPELI_PROD_SSL
         - oc set env deploy/imitaatiopeli-db-prod TZ="Europe/Helsinki"
+
+        # patch Node version
+        - oc patch bc/imitaatiopeli-db-prod --type=merge --patch '{"spec":{"strategy":{"dockerStrategy":{"from":null}}}}'
         # start build process in OpenShift
         - oc start-build imitaatiopeli-db-prod --from-dir=. --follow
         # patch openshift buildConfig file
