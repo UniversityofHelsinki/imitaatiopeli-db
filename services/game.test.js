@@ -15,7 +15,8 @@ describe('game service', () => {
         await database.query(`
             CREATE TEMPORARY TABLE IF NOT EXISTS LANGUAGE_MODEL (
                 model_id SERIAL PRIMARY KEY,
-                name VARCHAR(255)
+                name VARCHAR(255),
+                is_supported BOOLEAN NOT NULL DEFAULT TRUE
             );
         `);
         await database.query(`
@@ -79,9 +80,10 @@ describe('game service', () => {
         const lmId = 20;
         const configId = 10;
         const gameId = 1;
-        await database.query('INSERT INTO LANGUAGE_MODEL (model_id, name) VALUES ($1, $2)', [
+        await database.query('INSERT INTO LANGUAGE_MODEL (model_id, name, is_supported) VALUES ($1, $2, $3)', [
             lmId,
             'gpt-4',
+            true,
         ]);
         await database.query(
             'INSERT INTO GAME_CONFIGURATION (config_id, language_model) VALUES ($1, $2)',
